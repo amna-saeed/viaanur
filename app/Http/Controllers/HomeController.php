@@ -34,5 +34,9 @@ class HomeController extends Controller
     {
         return view('pages.privacy-policy');
     }
+    public function Licensing()
+    {
+        return view('pages.licensing');
+    }
    
 }

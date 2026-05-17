@@ -33,6 +33,7 @@
                         <td>{{ $student->created_at->format('M j, Y') }}</td>
                         <td>
                             <a href="{{ route('admin.students.show', $student) }}" class="btn btn-sm btn-outline-primary">View</a>
+                            <a href="{{ route('admin.students.edit', $student) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
                         </td>
                     </tr>
                     @empty

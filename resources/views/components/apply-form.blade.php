@@ -321,6 +321,16 @@
 
     function openModal(e) {
         if (e) e.preventDefault();
+        var opener = e && e.target && e.target.closest && e.target.closest('.js-apply-form-open');
+        var courseSel = document.getElementById('apply_course');
+        if (courseSel) {
+            var preset = opener && opener.getAttribute('data-apply-course');
+            if (preset && courseSel.querySelector('option[value="' + preset + '"]')) {
+                courseSel.value = preset;
+            } else {
+                courseSel.value = '';
+            }
+        }
         modal.classList.add('is-open');
         modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
@@ -359,6 +369,7 @@
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
             }
+
         })
         .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
         .then(function(result) {

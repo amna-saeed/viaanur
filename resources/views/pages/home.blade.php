@@ -246,10 +246,9 @@
                                     <div class="icon">
                                         <img src="{{asset('assets/images/banner/user-icon2.png')}}" class="users-course" alt="icon">
                                     </div>
-                                    <span>50+ students</span>
                                 </div>
-                                <div class="button blick-100 enroll-apply-btn js-apply-form-open">
-                                    <a class="bliink-inner1" href="javascript:void(0)">ENROLL NOW</a>
+                                <div class="button blick-100 enroll-apply-btn js-apply-form-open" data-apply-course="gcse-maths">
+                                    <a class="bliink-inner1" href="#" role="button">ENROLL NOW</a>
                                 </div>
                             </div>
                         </div>
@@ -293,10 +292,9 @@
                                     <div class="icon">
                                         <img src="{{asset('assets/images/banner/user-icon2.png')}}" class="users-course" alt="icon">
                                     </div>
-                                    <span>50+ students</span>
                                 </div>
-                                <div class="button blick-100 enroll-apply-btn js-apply-form-open">
-                                    <a class="bliink-inner1" href="javascript:void(0)">ENROLL NOW</a>
+                                <div class="button blick-100 enroll-apply-btn js-apply-form-open" data-apply-course="social-media">
+                                    <a class="bliink-inner1" href="#" role="button">ENROLL NOW</a>
                                 </div>
                             </div>
                         </div>
@@ -338,10 +336,9 @@
                                     <div class="icon">
                                         <img src="{{asset('assets/images/banner/user-icon2.png')}}" class="users-course" alt="icon">
                                     </div>
-                                    <span>50+ students</span>
                                 </div>
-                                <div class="button blick-100 enroll-apply-btn js-apply-form-open">
-                                    <a class="bliink-inner1" href="javascript:void(0)">ENROLL NOW</a>
+                                <div class="button blick-100 enroll-apply-btn js-apply-form-open" data-apply-course="islamic-studies">
+                                    <a class="bliink-inner1" href="#" role="button">ENROLL NOW</a>
                                 </div>
                             </div>
                         </div>

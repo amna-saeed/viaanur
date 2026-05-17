@@ -21,6 +21,16 @@ class Course extends Model
         return $this->hasMany(LmsClass::class, 'course_id');
     }
 
+    public function lessons(): HasMany
+    {
+        return $this->hasMany(Lesson::class);
+    }
+
+    public function quizzes(): HasMany
+    {
+        return $this->hasMany(Quiz::class);
+    }
+
     protected $fillable = [
         'title',
         'slug',

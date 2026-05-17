@@ -49,7 +49,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="blog-standard.html">
+                            <a href="{{ route('licensing') }}">
                                 Licensing
                             </a>
                         </li>

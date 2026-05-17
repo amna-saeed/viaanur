@@ -22,6 +22,9 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'phone',
+        'last_active_at',
+        'attendance_percentage',
     ];
 
     public const ROLE_STUDENT = 'student';
@@ -31,6 +34,16 @@ class User extends Authenticatable
     public function lmsEnrollments()
     {
         return $this->hasMany(LmsEnrollment::class, 'user_id');
+    }
+
+    public function enrolledCourses()
+    {
+        return $this->hasManyThrough(Course::class, LmsEnrollment::class, 'user_id', 'id', 'id', 'course_id');
+    }
+
+    public function quizAttempts()
+    {
+        return $this->hasMany(QuizAttempt::class, 'user_id');
     }
 
     public function taughtLmsClasses()

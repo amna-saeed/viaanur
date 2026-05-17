@@ -28,4 +28,36 @@ class AdminStudentController extends Controller
         }
         return view('admin.students.show', compact('student'));
     }
+
+    public function edit(User $student)
+    {
+        if ($student->role !== User::ROLE_STUDENT) {
+            abort(404);
+        }
+        return view('admin.students.edit', compact('student'));
+    }
+
+    public function update(Request $request, User $student)
+    {
+        if ($student->role !== User::ROLE_STUDENT) {
+            abort(404);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $student->id,
+            'phone' => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $data = $request->only(['name', 'email', 'phone']);
+        
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
+        }
+
+        $student->update($data);
+
+        return redirect()->route('admin.students.show', $student)->with('success', 'Student information updated successfully.');
+    }
 }

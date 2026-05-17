@@ -119,6 +119,7 @@
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
             }
+
         })
         .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, status: r.status, data: d }; }); })
         .then(function(result) {

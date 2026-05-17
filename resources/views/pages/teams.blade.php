@@ -63,14 +63,14 @@ Through his leadership and training,Aftab supports ViAaNur Tutoring’s mission 
                         </div>
                         <div class="content">
                             <h3 class="head-12">
-                                Ms.Sabreena Ruheena
+                                Ms.Sabreena Quraishi
                             </h3>
                             <p class="team-position">Early Years Lead & Primary Tutor</p>
-<p class="team-description-12">
-Sabreena is a qualified Pharmacist who remains deeply committed to continuous professional development, ensuring her knowledge and practice are consistently aligned with the latest guidance and the highest professional standards. Her background reflects precision, structure, and a strong sense of responsibility—qualities that strongly shape her thoughtful and effective approach to tutoring.<br /><br />
-As part of the ViAaNur Tutoring team, Sabreena brings a nurturing yet purposeful approach, particularly well suited to early years and primary learners. She prioritises strong foundations, clear progression, and personalised support, ensuring every learner feels supported, appropriately challenged, and genuinely valued.<br /><br />
-Her combined experience as a healthcare professional and educator enables her to deliver an elite education experience that balances academic excellence with care, high expectations, and professional insight.
-</p>
+                                <p class="team-description-12">
+                                Sabreena is a qualified Pharmacist who remains deeply committed to continuous professional development, ensuring her knowledge and practice are consistently aligned with the latest guidance and the highest professional standards. Her background reflects precision, structure, and a strong sense of responsibility—qualities that strongly shape her thoughtful and effective approach to tutoring.<br /><br />
+                                As part of the ViAaNur Tutoring team, Sabreena brings a nurturing yet purposeful approach, particularly well suited to early years and primary learners. She prioritises strong foundations, clear progression, and personalised support, ensuring every learner feels supported, appropriately challenged, and genuinely valued.<br /><br />
+                                Her combined experience as a healthcare professional and educator enables her to deliver an elite education experience that balances academic excellence with care, high expectations, and professional insight.
+                                </p>
                             <button class="team-readmore-btn">Read More</button>
                         </div>
                     </div>

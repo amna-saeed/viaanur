@@ -7,6 +7,7 @@ use App\Models\LmsAnnouncement;
 use App\Models\LmsClass;
 use App\Models\LmsEnrollment;
 use App\Models\User;
+use App\Models\Teacher;
 use Illuminate\Support\Collection;
 class LmsDashboardStatsService
 {
@@ -14,7 +15,7 @@ class LmsDashboardStatsService
     {
         return [
             'total_students' => User::where('role', User::ROLE_STUDENT)->count(),
-            'total_teachers' => User::where('role', User::ROLE_TEACHER)->count(),
+            'total_teachers' => Teacher::count(),
             'total_courses' => Course::count(),
             'active_classes' => LmsClass::where('is_active', true)->count(),
             'total_enrollments' => LmsEnrollment::count(),
@@ -63,7 +64,7 @@ class LmsDashboardStatsService
 
     public function teacherStudentRatio(): array
     {
-        $t = User::where('role', User::ROLE_TEACHER)->count();
+        $t = Teacher::count();
         $s = User::where('role', User::ROLE_STUDENT)->count();
         return [
             'labels' => ['Teachers', 'Students'],

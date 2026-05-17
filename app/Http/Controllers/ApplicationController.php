@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Application;
 use App\Mail\ApplicationReceived;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class ApplicationController extends Controller
@@ -27,6 +28,8 @@ class ApplicationController extends Controller
         ]);
 
         $toEmail = config('mail.application_to', 'admin@viaanur.com');
+        $bccRaw = (string) config('mail.application_bcc', '');
+        $bccList = array_values(array_filter(array_map('trim', explode(',', $bccRaw))));
         $mailSent = false;
         $mailError = null;
         $mailable = new ApplicationReceived($application);
@@ -39,9 +42,17 @@ class ApplicationController extends Controller
             $mailersToTry = ['onecom_send_587', 'onecom_send_465', 'onecom_send_25', 'smtp', 'onecom_mailout_587', 'onecom_mailout_465'];
             foreach ($mailersToTry as $mailerName) {
                 try {
-                    Mail::mailer($mailerName)->to($toEmail)->send($mailable);
+                    $pending = Mail::mailer($mailerName)->to($toEmail);
+                    if ($bccList !== []) {
+                        $pending->bcc($bccList);
+                    }
+                    $pending->send($mailable);
                     $mailSent = true;
                     $mailError = null;
+                    Log::info('Application notification email accepted by SMTP', [
+                        'to' => $toEmail,
+                        'mailer' => $mailerName,
+                    ]);
                     break;
                 } catch (\Exception $e) {
                     \Log::warning('Application email failed: ' . $mailerName, ['message' => $e->getMessage()]);

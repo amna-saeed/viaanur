@@ -30,7 +30,7 @@
                         <tr>
                             <td>
                                 @if($course->image)
-                                    <img src="{{ asset('storage/' . $course->image) }}" alt="" class="rounded me-2" style="width:40px;height:40px;object-fit:cover">
+                                    <img src="{{ asset('storage/' . $course->image) }}" alt="" class="admin-lms-thumb me-2" width="40" height="40" loading="lazy">
                                 @endif
                                 {{ $course->title }}
                             </td>
@@ -44,6 +44,8 @@
                             <td>{{ $course->created_at->format('M j, Y') }}</td>
                             <td>
                                 <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="{{ route('admin.lessons.index', $course) }}" class="btn btn-sm btn-outline-secondary">Lessons</a>
+                                <a href="{{ route('admin.quizzes.index', $course) }}" class="btn btn-sm btn-outline-info">Quizzes</a>
                                 <form action="{{ route('admin.courses.destroy', $course) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this course?');">
                                     @csrf
                                     @method('DELETE')

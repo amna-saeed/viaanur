@@ -8,97 +8,93 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Poppins', sans-serif; background: #f4f6f9; min-height: 100vh; }
-        .student-dash-header {
-            background: #d1d1daad;
-            color: #f8f8f8;
-            padding: 1.5rem 0;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid #d0d2dc;
-        }
-        .student-dash-header .brand img { height: 36px; }
-        .student-dash-header .nav-link { 
-            color: rgb(34 33 99);
-            padding: 0.5rem 1rem;
-            font-weight: 600;
-         }
-        .student-dash-header .nav-link:hover, .student-dash-header .nav-link.active { color: #3d39a9; }
-        .student-dash-content { padding-bottom: 2rem; }
-        .card { border: none; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-        .logo-dashboard{    
-            width: auto;
-            height: 60px;
-        }
-        span.text-blue-50 {
-            color: #211f62;
-        }
-        a.btn.btn-outline-light.btn-sm {
-            border: 1px solid #211f61;
-            color: #211f61;
-        }
-        a.btn.btn-outline-light.btn-sm:hover {
-            background-color: #211f61;
-            color: #fff;
-        }
-        span.text-user-name {
-            color: #211f62;
-            padding: 0px 21px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-        button.btn-default-out {
-            border: 1px solid #211f62;
-            color: #211f62;
-            border-radius: 6px;
-            padding: 6px 11px;
-        }
-        button.btn-default-out:hover {
-            background-color:#211f62;
-            color: #fff;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     @stack('styles')
 </head>
-<body>
-    <header class="student-dash-header">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <a href="{{ route('student.dashboard') }}" class="d-flex align-items-center gap-2 text-white text-decoration-none">
-                    <img src="{{ asset('assets/images/banner/logo-new.webp') }}" class="logo-dashboard" alt="ViaANur">
-                    <span class="text-user-name">{{ auth()->user()->name }}</span>
-                </a>
-                <nav class="d-flex align-items-center gap-2">
-                    <a class="nav-link active" href="{{ route('student.dashboard') }}">Dashboard</a>
-                    <span class="text-blue-50">|</span>
-                    <a class="nav-link" href="{{ route('home') }}" target="_blank">View site</a>
-                    
-                    
-                    <form action="{{ route('logout') }}" method="POST" class="d-inline" onsubmit="return confirm('Sign out?');">
-                        @csrf
-                        <button type="submit" class="btn-default-out">
-                            <i class="bi bi-box-arrow-right"></i> Sign out
-                        </button>
-                    </form>
-                </nav>
+<body class="student-lms-app">
+    <a href="#student-main-content" class="visually-hidden-focusable student-lms-skip">Skip to main content</a>
+
+    <div class="student-lms-mobilebar d-lg-none">
+        <button class="student-lms-mobilebar-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#studentLmsNavCollapse" aria-expanded="false" aria-controls="studentLmsNavCollapse">
+            <i class="bi bi-list" aria-hidden="true"></i>
+            <span class="visually-hidden">Open navigation menu</span>
+        </button>
+        <a href="{{ route('student.dashboard') }}" class="student-lms-mobilebar-brand">
+            <img src="{{ asset('assets/images/banner/logo-new.webp') }}" alt="ViaANur" width="120" height="32" decoding="async">
+        </a>
+        <span class="student-lms-avatar student-lms-avatar--sm" aria-hidden="true">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+    </div>
+
+    <div class="collapse student-lms-nav-collapse d-lg-none" id="studentLmsNavCollapse">
+        <nav class="student-lms-nav student-lms-nav--mobile" aria-label="Primary">
+            @include('student.partials.sidebar-nav')
+        </nav>
+        <div class="student-lms-mobile-user">
+            <span class="student-lms-avatar" aria-hidden="true">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+            <div class="student-lms-mobile-user__text">
+                <span class="student-lms-mobile-user__name">{{ auth()->user()->name }}</span>
+                <span class="student-lms-mobile-user__email">{{ auth()->user()->email }}</span>
             </div>
         </div>
-    </header>
+    </div>
 
-    <main class="container student-dash-content">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <aside class="student-lms-sidebar d-none d-lg-flex flex-column" aria-label="Student navigation">
+        <div class="student-lms-brand">
+            <a href="{{ route('student.dashboard') }}" class="student-lms-brand__link">
+                <img src="{{ asset('assets/images/banner/logo-new.webp') }}" alt="ViaANur" width="140" height="36" decoding="async">
+            </a>
+            <span class="student-lms-brand__badge">Student</span>
+        </div>
+        <nav class="student-lms-nav flex-column flex-grow-1" aria-label="Primary">
+            @include('student.partials.sidebar-nav')
+        </nav>
+        <div class="student-lms-sidebar-foot">
+            <div class="student-lms-user-card">
+                <span class="student-lms-avatar" aria-hidden="true">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                <div class="student-lms-user-card__meta">
+                    <span class="student-lms-user-card__name">{{ auth()->user()->name }}</span>
+                    <span class="student-lms-user-card__role">Student account</span>
+                </div>
             </div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">{{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </aside>
+
+    <div class="student-lms-main">
+        <header class="student-lms-topbar">
+            <div class="student-lms-topbar__lead">
+                <p class="student-lms-topbar__eyebrow mb-0">Learning portal</p>
+                <h1 class="student-lms-topbar-title">@yield('page_heading', 'Dashboard')</h1>
             </div>
-        @endif
-        @yield('content')
-    </main>
+            <div class="student-lms-topbar__actions">
+                <span class="student-lms-topbar-meta d-none d-md-inline">
+                    <i class="bi bi-person-circle" aria-hidden="true"></i> {{ auth()->user()->name }}
+                </span>
+                <form action="{{ route('logout') }}" method="POST" class="d-inline" onsubmit="return confirm('Sign out?');">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-danger btn-sm student-lms-btn-signout">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                        <span class="d-none d-sm-inline">Sign out</span>
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <main id="student-main-content" class="student-lms-content">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show student-lms-alert" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss"></button>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show student-lms-alert" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss"></button>
+                </div>
+            @endif
+            @yield('content')
+        </main>
+    </div>
 
     <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
