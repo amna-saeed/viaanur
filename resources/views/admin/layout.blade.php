@@ -69,7 +69,7 @@
                 <span class="admin-lms-topbar-meta d-none d-md-inline">
                     <i class="bi bi-person-badge" aria-hidden="true"></i> {{ auth()->user()->name }}
                 </span>
-                <form action="{{ route('logout') }}" method="POST" class="d-inline" onsubmit="return confirm('Sign out?');">
+                <form action="{{ route('admin.logout') }}" method="POST" class="d-inline" onsubmit="return confirm('Sign out?');">
                     @csrf
                     <button type="submit" class="btn btn-outline-danger btn-sm admin-lms-btn-signout">
                         <i class="bi bi-box-arrow-right" aria-hidden="true"></i>

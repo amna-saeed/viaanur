@@ -81,125 +81,13 @@
     </div>
     
     @include('components.academic-lead ')
-
+    @include('components.categories')
     <!-- Start Categories Area -->
-    <div class="categories-area pt-136 pb-110">
-        <div class="container">
-            <div class="categories-section-title" data-cue="slideInUp">
-                <div class="row align-items-end">
-                    <div class="col-lg-12 col-md-7 text-center">
-                        <div class="section-title">
-                            <span class="d-inline-block sub-title">Course Category</span>
-                            <h2>
-                                Explore Top 
-                                <span class="position-relative">
-                                    Categories
-                                </span>
-                            </h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row" data-cues="fadeIn">
-                <div class="col-lg-4 col-sm-6">
-                    <div class="single-categories-card text-center">
-                        <div class="icon mx-auto position-relative z-1">
-                            <img  src="assets/images/banner/categories-bg-shape.svg" alt="bg-shape">
-                            <img class="bg-shape" src="{{asset('assets/images/banner/english.webp')}}" alt="icon">
-                        </div>
-                        <h3>English</h3>
-                        <p>(Primary Level)</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="single-categories-card second-color text-center">
-                        <div class="icon mx-auto position-relative z-1">
-                           <img  src="assets/images/banner/categories-bg-shape.svg" alt="bg-shape">
-                            <img class="bg-shape" src="{{asset('assets/images/banner/esol.webp')}}" alt="icon">
-                        </div>
-                        <h3>ESOL</h3>
-                        <p>(For non-native English speakers)</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="single-categories-card text-center">
-                        <div class="icon mx-auto position-relative z-1">
-                            <img  src="assets/images/banner/categories-bg-shape.svg" alt="bg-shape">
-                            <img class="bg-shape" src="{{asset('assets/images/banner/Graphic design.webp')}}" alt="icon">
-                        </div>
-                        <h3>Graphic Design</h3>
-                        <p>(For non-native designers)</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="single-categories-card second-color text-center">
-                        <div class="icon mx-auto position-relative z-1">
-                             <img  src="assets/images/banner/categories-bg-shape.svg" alt="bg-shape">
-                            <img class="bg-shape" src="{{asset('assets/images/banner/Maths.webp')}}" alt="icon">
-                        </div>
-                        <h3>Mathematics</h3>
-                        <p>(Up to GCSE Level)</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="single-categories-card text-center">
-                        <div class="icon mx-auto position-relative z-1">
-                            <img  src="assets/images/banner/categories-bg-shape.svg" alt="bg-shape">
-                            <img class="bg-shape" src="{{asset('assets/images/banner/socialmedia.webp')}}" alt="icon">
-                        </div>
-                        <h3>Social Media Studies</h3>
-                        <p>(Content Creation)</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="single-categories-card second-color text-center">
-                        <div class="icon mx-auto position-relative z-1">
-                            <img  src="assets/images/banner/categories-bg-shape.svg" alt="bg-shape">
-                            <img class="bg-shape" src="{{asset('assets/images/banner/quran.webp')}}" alt="icon">
-                        </div>
-                        <h3>Qur’an Reading</h3>
-                        <p>(With Tajweed Rules)</p>
-                    </div>
-                </div>
-            </div>
-             <div class="row" data-cues="fadeIn">
-                <div class="col-lg-4 col-sm-6">
-                    <div class="single-categories-card text-center">
-                        <div class="icon mx-auto position-relative z-1">
-                            <img  src="assets/images/banner/categories-bg-shape.svg" alt="bg-shape">
-                            <img class="bg-shape" src="{{asset('assets/images/banner/Quran Memorizing.webp')}}" alt="icon">
-                        </div>
-                        <h3>Qur’an Memorisation</h3>
-                        <p> (Hifdh Programme)</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="single-categories-card second-color text-center">
-                        <div class="icon mx-auto position-relative z-1">
-                           <img  src="assets/images/banner/categories-bg-shape.svg" alt="bg-shape">
-                            <img class="bg-shape" src="{{asset('assets/images/banner/university.webp')}}" alt="icon">
-                        </div>
-                        <h3>University Admissions Exams</h3>
-                        <p>(UKCAT/BMAT)</p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="single-categories-card text-center">
-                        <div class="icon mx-auto position-relative z-1">
-                            <img  src="assets/images/banner/categories-bg-shape.svg" alt="bg-shape">
-                            <img class="bg-shape" src="{{asset('assets/images/banner/Web design.webp')}}" alt="icon">
-                        </div>
-                        <h3>Website/Webpage Design</h3>
-                        <p>(For non-native beginners)</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+   
     <!-- End Categories Area -->
-    @include('components.apply-form')
+    <!-- @include('components.apply-form') -->
       <!-- Start Courses Area -->
-    <div class="courses-area pt-136 pb-110">
+    <!-- <div class="courses-area pt-136 pb-110">
         <div class="container">
             <div class="section-title text-center" data-cue="slideInUp">
                 <span class="d-inline-block sub-title">Most Featured Courses</span>
@@ -346,14 +234,8 @@
                 </div>
                
             </div>
-            <!-- <div class="single-courses-button text-center" data-cue="slideInUp">
-                <a href="courses-details.html" class="default-btn2"> 
-                    View All Courses
-                     <i class="bi bi-arrow-right ml-2"></i>
-                </a>
-            </div> -->
         </div>
-    </div>
+    </div> -->
     <!-- End Courses Area -->
 
    

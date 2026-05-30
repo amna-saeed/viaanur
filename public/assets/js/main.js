@@ -104,35 +104,25 @@
 	// });
 
 	// Categories JS
-	// $(".categories-slider-info").owlCarousel({
-	// 	nav: true,
-	// 	loop: true,
-	// 	margin: 25,
-	// 	dots: false,
-	// 	autoplay: false,
-	// 	autoplayHoverPause: true,
-	// 	navText: [
-	// 		"<i class='ph-bold ph-arrow-left'></i>",
-	// 		"<i class='ph-bold ph-arrow-right'></i>",
-	// 	],
-	// 	responsive:{
-	// 		0:{
-	// 			items:1,
-	// 		},
-	// 		576:{
-	// 			items:2,
-	// 		},
-	// 		768:{
-	// 			items:2,
-	// 		},
-	// 		992:{
-	// 			items:3,
-	// 		},
-	// 		1200:{
-	// 			items:4,
-	// 		}
-	// 	}
-	// });
+	$(".categories-slider-info").owlCarousel({
+		nav: true,
+		loop: true,
+		margin: 25,
+		dots: false,
+		autoplay: false,
+		autoplayHoverPause: true,
+		navText: [
+			'<i class="bi bi-arrow-left"></i>',
+			'<i class="bi bi-arrow-right"></i>',
+		],
+		responsive: {
+			0: { items: 1 },
+			576: { items: 2 },
+			768: { items: 2 },
+			992: { items: 3 },
+			1200: { items: 4 },
+		},
+	});
 
 	// Go to Top 
 	$(function(){

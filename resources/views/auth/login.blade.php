@@ -6,7 +6,7 @@
             <div class="col-md-6 col-lg-5">
                 <div class="card shadow border-0 rounded-3">
                     <div class="card-body p-5">
-                        <h2 class="mb-4">Sign in</h2>
+                        <h2 class="mb-4">{{ $pageHeading }}</h2>
                         @if (session('success'))
                             <div class="alert alert-success">{{ session('success') }}</div>
                         @endif
@@ -17,7 +17,12 @@
                                 @endforeach
                             </div>
                         @endif
-                        <form method="POST" action="{{ route('login') }}">
+                        @php
+                            $loginAction = $loginAction ?? route('student.login');
+                            $pageHeading = $pageHeading ?? 'Sign in';
+                            $showRegisterLink = $showRegisterLink ?? true;
+                        @endphp
+                        <form method="POST" action="{{ $loginAction }}">
                             @csrf
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
@@ -33,12 +38,14 @@
                             </div>
                             <button type="submit" class="default-btn2 w-100">Sign in</button>
                         </form>
-                        <p class="mt-4 mb-0 text-center text-muted">
-                            Don't have an account? <a href="{{ route('register') }}">Register</a>
-                            @if (config('viaanoor.allow_web_admin_setup'))
-                                <br><span class="small">Or <a href="{{ route('setup-admin') }}">create admin account (no register)</a></span>
-                            @endif
-                        </p>
+                        @if ($showRegisterLink)
+                            <p class="mt-4 mb-0 text-center text-muted">
+                                Don't have an account? <a href="{{ route('register') }}">Register</a>
+                                @if (config('viaanoor.allow_web_admin_setup'))
+                                    <br><span class="small">Or <a href="{{ route('setup-admin') }}">create admin account (no register)</a></span>
+                                @endif
+                            </p>
+                        @endif
                     </div>
                 </div>
             </div>

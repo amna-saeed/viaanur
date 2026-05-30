@@ -16,13 +16,19 @@
 </div>
 <!-- End Preloader -->
 
-<!-- Start Navbar Area --> 
+<!-- Start Navbar Area -->
+<div class="page-top-tagline">
+    <div class="marquee">
+        <span>Build Your Future with Smart Learning</span>
+    </div>
+</div>
+
 <div class="navbar-area fixed-top">
     <div class="mobile-responsive-nav">
         <div class="container">
             <div class="mobile-responsive-menu">
                 <div class="logo">
-                    <a href="index.html">
+                    <a href="/">
                         <img src="{{ asset('assets/images/banner/logo-new.webp') }}" alt="logo">
                     </a>
                 </div>
@@ -43,9 +49,15 @@
                                 Home
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a href="{{ route('courses') }}" class="nav-link {{ request()->routeIs('courses') ? 'active' : '' }}">
                                 Courses
+                            </a>
+                        </li> -->
+                       <li class="nav-item">
+                            <a href="#courses-move" class="nav-link menu-link">
+                                Courses
+                                <i class="fas fa-arrow-right"></i>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -65,28 +77,11 @@
                         </li>
                     </ul>
                     <div class="others-option position-relative d-flex align-items-center gap-2">
-                        @auth
-                            <div class="option-item">
-                                <a href="{{ route(auth()->user()->isAdmin() ? 'admin.dashboard' : 'student.dashboard') }}" class="header-nav-btn">
-                                    <i class="bi bi-grid-1x2 me-1"></i> Dashboard
-                                </a>
-                            </div>
-                            @if(auth()->user()->isAdmin())
-                                <div class="option-item">
-                                    <a href="{{ route('admin.courses.index') }}" class="header-nav-btn header-nav-btn-outline">Courses</a>
-                                </div>
-                            @endif
-                            <div class="option-item">
-                                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="header-nav-btn header-nav-btn-outline">Sign out</button>
-                                </form>
-                            </div>
-                        @else
+                       
+                       
                             <div class="option-item">
                                 <a href="{{ route('login') }}" class="header-nav-btn"> <i class="bi bi-person-fill ml-2"></i>Sign in</a>
                             </div>
-                        @endauth
                     </div>
                 </div>
             </nav>
@@ -106,12 +101,21 @@
             <div class="container">
                 <div class="option-inner">
                     <div class="others-options justify-content-center d-flex align-items-center gap-2 flex-wrap">
-                        @auth
+                        @php
+                            $adminActive = auth()->check() && auth()->user()->isAdmin();
+                            $studentActive = auth()->check() && auth()->user()->isStudent();
+
+                            if (! auth()->check()) {
+                                $adminActive = auth('admin')->check();
+                                $studentActive = auth('student')->check() && ! $adminActive;
+                            }
+                        @endphp
+                        @if ($adminActive || $studentActive)
                             <div class="option-item">
-                                <a href="{{ route(auth()->user()->isAdmin() ? 'admin.dashboard' : 'student.dashboard') }}" class="header-nav-btn">Dashboard</a>
+                                <a href="{{ route($adminActive ? 'admin.dashboard' : 'student.dashboard') }}" class="header-nav-btn">Dashboard</a>
                             </div>
                             <div class="option-item">
-                                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                <form action="{{ route($adminActive ? 'admin.logout' : 'student.logout') }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="header-nav-btn header-nav-btn-outline">Sign out</button>
                                 </form>
@@ -120,7 +124,7 @@
                             <div class="option-item">
                                 <a href="{{ route('login') }}" class="header-nav-btn">Sign in <i class="bi bi-person-fill ml-2"></i></a>
                             </div>
-                        @endauth
+                        @endif
                     </div>
                 </div>
             </div>
@@ -130,7 +134,77 @@
 <!-- End Navbar Area -->
 
 <style>
-/* Active nav link - green color + underline */
+:root {
+    --topbar-height: 48px;
+    --navbar-height: 72px;
+}
+
+.page-top-tagline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1045;
+    background: rgb(50 47 137);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.5rem 0;
+}
+
+.page-top-tagline .marquee {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-top-tagline .marquee span {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffff;
+    padding-left: 100%;
+    animation: moveText 25s linear infinite;
+    letter-spacing: 0.02em;
+}
+
+@keyframes moveText {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+.navbar-area.fixed-top {
+    position: fixed;
+    top: 33px;
+    left: 0;
+    right: 0;
+    z-index: 1040;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.12);
+}
+
+.navbar-area .desktop-nav .container,
+.navbar-area .others-option-for-responsive .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.navbar-area .navbar {
+    min-height: var(--navbar-height);
+}
+
+.navbar-area .navbar-brand img.header-logo {
+    max-height: 48px;
+    width: auto;
+}
+
 .navbar-nav .nav-link.active {
     color: #322f89 !important;
     font-weight: 600;
@@ -138,49 +212,104 @@
     text-underline-offset: 6px;
     text-decoration-thickness: 2px;
 }
+
 .navbar-nav .nav-link:hover {
     color: var(--mainColor, #b2cd34) !important;
 }
 
-.loader-logo{
+.loader-logo {
     width: 290px;
 }
 
-/* Header-only auth buttons – unique class, baaki site ke buttons par apply nahi hoga */
 .header-nav-btn {
     z-index: 1;
     position: relative;
-    padding: 8px 15px;
+    padding: 8px 16px;
     border-radius: 6px;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     color: #fff;
     background: #322f89;
-    font-size: 15px;
+    font-size: 0.95rem;
     font-weight: 500;
     font-family: var(--fontFamily);
     text-decoration: none;
     transition: all 0.3s ease-in-out;
     border: 2px solid #322f89;
     cursor: pointer;
-    display: inline-flex;
-    gap: 5px;
+    gap: 6px;
+    white-space: nowrap;
 }
+
 .header-nav-btn:hover {
     color: #fff;
     background: #2a276e;
     border-color: #2a276e;
 }
+
 .header-nav-btn-outline {
     background: transparent;
     color: #322f89;
     border: 2px solid #322f89;
 }
+
 .header-nav-btn-outline:hover {
     background: #322f89;
     color: #fff;
 }
+
 form .header-nav-btn-outline {
-    font-size: 14px;
-    padding: 6px 14px;
+    font-size: 0.9rem;
+    padding: 7px 14px;
+}
+
+@media (max-width: 991px) {
+    .page-top-tagline {
+        padding: 0.45rem 0;
+    }
+
+    .page-top-tagline .marquee span {
+        font-size: clamp(0.85rem, 2.2vw, 1.05rem);
+    }
+
+    .navbar-area .navbar {
+        min-height: auto;
+        padding: 0.5rem 0;
+    }
+
+    .navbar-area .navbar-brand img.header-logo {
+        max-height: 42px;
+    }
+
+    .header-nav-btn {
+        font-size: 0.9rem;
+        padding: 7px 13px;
+    }
+}
+
+@media (max-width: 767px) {
+    .page-top-tagline {
+        padding: 0.35rem 0;
+    }
+
+    .page-top-tagline .marquee span {
+        font-size: 0.92rem;
+    }
+
+    .navbar-area .desktop-nav .container,
+    .navbar-area .others-option-for-responsive .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .navbar-area .others-option {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+body {
+    padding-top: calc(var(--topbar-height) + var(--navbar-height));
+    scroll-padding-top: calc(var(--topbar-height) + var(--navbar-height));
 }
 </style>

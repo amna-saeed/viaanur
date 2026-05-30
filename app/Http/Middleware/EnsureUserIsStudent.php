@@ -11,11 +11,11 @@ class EnsureUserIsStudent
 {
     public function handle(Request $request, Closure $next)
     {
-        if (! Auth::check()) {
+        if (! Auth::guard('student')->check()) {
             return $next($request);
         }
 
-        $user = Auth::user();
+        $user = Auth::guard('student')->user();
         if ($user->role !== User::ROLE_STUDENT) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Student access only.'], 403);

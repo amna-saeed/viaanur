@@ -6,7 +6,7 @@
                 <div class="single-footer-widget logo-info" data-cue="slideInUp">
                     <div class="logo">
                         <a>
-                            <img src="assets/images/banner/logo-new.webp" alt="logo" class="footer-logo">
+                            <img src="{{ asset('assets/images/banner/logo-new.webp') }}" alt="logo" class="footer-logo">
                         </a>
                     </div>
                     <p>At ViAaNur Tutoring, we believe that every learner carries unique potential waiting to be cultivated. </p>
