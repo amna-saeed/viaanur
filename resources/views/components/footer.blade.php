@@ -7,7 +7,7 @@
 
 .ft-footer {
     position: relative;
-    background: linear-gradient(155deg, #06051a21 0%, #0c0a38a3 40%, #110e44d6 70%, #06051a 100%);
+    background: #ebebeb;
     overflow: hidden;
     padding: 84px 0 0;
     border-top: 1px solid rgba(178,205,52,.18);
@@ -38,21 +38,25 @@
     display:block; margin-bottom:20px;
 }
 .ft-brand-desc {
-    font-size:14px; color:black;
-    line-height:1.80; margin-bottom:28px; max-width:300px;
+    font-size:14px; color:#101010;
+    line-height:1.80; margin-bottom:28px; max-width:300px;font-weight: 500;
 }
 
 /* Social */
 .ft-social { display:flex; align-items:center; gap:10px; }
 .ft-social-link {
-    width:40px; height:40px;
-    display:flex; align-items:center; justify-content:center;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:50%;
-    color:rgba(255,255,255,.58);
-    font-size:17px; text-decoration:none;
-    transition:all .35s cubic-bezier(.175,.885,.32,1.275);
+     width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(229 232 216);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 50%;
+    color: rgb(101 184 76);
+    font-size: 17px;
+    text-decoration: none;
+    transition: all .35s cubic-bezier(.175, .885, .32, 1.275);
 }
 .ft-social-link:hover {
     background:#b2cd34; border-color:#b2cd34;
@@ -64,7 +68,7 @@
 
 /* ── Column headings ── */
 .ft-col-title {
-    font-size:13px; font-weight:700; color:#fff;
+    font-size:13px; font-weight:700; color:black;
     letter-spacing:.7px; text-transform:uppercase;
     margin-bottom:28px; padding-bottom:14px;
     position:relative;
@@ -80,10 +84,14 @@
 .ft-links { list-style:none; padding:0; margin:0; }
 .ft-links li { margin-bottom:11px; }
 .ft-links a {
-    font-size:14px; color:black;
-    text-decoration:none;
-    display:inline-flex; align-items:center; gap:9px;
-    transition:all .3s ease;
+    font-size: 14px;
+    color: #101010;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    transition: all .3s ease;
+    font-weight: 500;
 }
 .ft-links a::before {
     content:''; width:6px; height:6px;
@@ -99,9 +107,13 @@
 /* ── Contact list ── */
 .ft-contact { list-style:none; padding:0; margin:0; }
 .ft-contact li {
-    display:flex; align-items:center; gap:14px;
-    margin-bottom:16px;
-    font-size:14px; color:black;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #101010;
+    font-weight: 500;
 }
 .ft-contact-icon {
     width:38px; height:38px; min-width:38px;
@@ -131,7 +143,7 @@
     position:relative; z-index:1;
 }
 .ft-copyright {
-    font-size:13px; color:rgba(255,255,255,.32);
+    font-size:13px; color:black;
     margin:0; text-align:center;
 }
 .ft-copyright span { color:rgba(178,205,52,.70); font-weight:600; }
