@@ -6,7 +6,7 @@
             <div class="col-lg-9 col-xl-8">
                 <div class="card shadow border-0 rounded-3">
                     <div class="card-body p-5">
-                        <h2 class="mb-4">Create account</h2>
+                        <h2 class="mb-4">Create accountnewchangeee</h2>
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 @foreach ($errors->all() as $error)
