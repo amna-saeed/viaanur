@@ -9,6 +9,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 @endif
+@php
+    $profile = $student->studentProfile;
+@endphp
 
 <!-- Profile Header -->
 <div class="card mb-4 border-0 shadow-sm" style="background:linear-gradient(135deg, #1e293b 0%, #6f489a 100%);">
@@ -20,6 +23,9 @@
             <div>
                 <h3 class="mb-1">{{ $student->name }}</h3>
                 <p class="mb-0 text-white-50"><i class="bi bi-envelope me-2"></i>{{ $student->email }}</p>
+                @if($profile)
+                    <p class="mb-0 text-white-50"><i class="bi bi-person-vcard me-2"></i>{{ $profile->student_id_number }}</p>
+                @endif
                 <p class="mb-0 text-white-50"><i class="bi bi-calendar-event me-2"></i>Joined {{ $student->created_at->format('M d, Y') }}</p>
             </div>
         </div>
@@ -37,7 +43,19 @@
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <div class="mb-3">
-                            <label class="text-muted small text-uppercase fw-bold">Name</label>
+                            <label class="text-muted small text-uppercase fw-bold">Student ID Number</label>
+                            <p class="h6 mb-0">
+                                @if($profile)
+                                    {{ $profile->student_id_number }}
+                                @else
+                                    <span class="text-muted">Not completed</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="mb-3">
+                            <label class="text-muted small text-uppercase fw-bold">Full Name</label>
                             <p class="h6 mb-0">{{ $student->name }}</p>
                         </div>
                     </div>
@@ -45,6 +63,42 @@
                         <div class="mb-3">
                             <label class="text-muted small text-uppercase fw-bold">Email</label>
                             <p class="h6 mb-0">{{ $student->email }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="mb-3">
+                            <label class="text-muted small text-uppercase fw-bold">Date of Birth</label>
+                            <p class="h6 mb-0">
+                                @if($profile && $profile->date_of_birth)
+                                    <i class="bi bi-calendar-date me-2"></i>{{ $profile->date_of_birth->format('M d, Y') }}
+                                @else
+                                    <span class="text-muted"><i class="bi bi-dash-circle me-2"></i>Not completed</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="mb-3">
+                            <label class="text-muted small text-uppercase fw-bold">Gender</label>
+                            <p class="h6 mb-0">
+                                @if($profile)
+                                    {{ $genderOptions[$profile->gender] ?? ucfirst(str_replace('_', ' ', $profile->gender)) }}
+                                @else
+                                    <span class="text-muted">Not completed</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="mb-3">
+                            <label class="text-muted small text-uppercase fw-bold">School Name</label>
+                            <p class="h6 mb-0">
+                                @if($profile && $profile->school_name)
+                                    {{ $profile->school_name }}
+                                @else
+                                    <span class="text-muted">Not applicable</span>
+                                @endif
+                            </p>
                         </div>
                     </div>
                     <div class="col-md-6 mb-4">
@@ -59,11 +113,66 @@
                             </p>
                         </div>
                     </div>
+                    <div class="col-md-12 mb-4">
+                        <div class="mb-3">
+                            <label class="text-muted small text-uppercase fw-bold">Home Address</label>
+                            <p class="h6 mb-0">
+                                @if($profile)
+                                    {{ $profile->home_address }}
+                                @else
+                                    <span class="text-muted">Not completed</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
                     <div class="col-md-6 mb-4">
                         <div class="mb-3">
                             <label class="text-muted small text-uppercase fw-bold">Member Since</label>
                             <p class="h6 mb-0"><i class="bi bi-calendar3 me-2"></i>{{ $student->created_at->format('M d, Y') }}</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guardian & Emergency Contact Card -->
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom p-4">
+                <h5 class="mb-0"><i class="bi bi-shield-check text-danger me-2"></i>Guardian & Emergency Contacts</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small text-uppercase fw-bold">Parent/Guardian Name</label>
+                        <p class="h6 mb-0">
+                            @if($profile)
+                                {{ $profile->guardian_name }}
+                            @else
+                                <span class="text-muted">Not completed</span>
+                            @endif
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small text-uppercase fw-bold">Parent/Guardian Contact Number</label>
+                        <p class="h6 mb-0">
+                            @if($profile)
+                                <i class="bi bi-telephone me-2"></i>{{ $profile->guardian_contact_number }}
+                            @else
+                                <span class="text-muted">Not completed</span>
+                            @endif
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="text-muted small text-uppercase fw-bold">Emergency Contact Number</label>
+                        <p class="h6 mb-0">
+                            @if($profile && $profile->emergency_contact_number)
+                                <i class="bi bi-telephone-plus me-2"></i>{{ $profile->emergency_contact_number }}
+                            @elseif($profile)
+                                <span class="text-muted">Same as guardian contact</span>
+                            @else
+                                <span class="text-muted">Not completed</span>
+                            @endif
+                        </p>
                     </div>
                 </div>
             </div>

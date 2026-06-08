@@ -22,6 +22,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard/api/stats', [AdminDashboardController::class, 'apiStats'])->name('dashboard.api.stats');
 
         Route::get('/students', [AdminStudentController::class, 'index'])->name('students.index');
+        Route::get('/students/create', [AdminStudentController::class, 'create'])->name('students.create');
+        Route::post('/students', [AdminStudentController::class, 'store'])->name('students.store');
         Route::get('/students/{student}', [AdminStudentController::class, 'show'])->name('students.show');
         Route::get('/students/{student}/edit', [AdminStudentController::class, 'edit'])->name('students.edit');
         Route::put('/students/{student}', [AdminStudentController::class, 'update'])->name('students.update');

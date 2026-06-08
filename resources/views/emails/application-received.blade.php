@@ -20,6 +20,14 @@
             <tr><td>Name</td><td>{{ $application->name }}</td></tr>
             <tr><td>Email</td><td>{{ $application->email }}</td></tr>
             <tr><td>Phone</td><td>{{ $application->phone }}</td></tr>
+            <tr><td>Student ID</td><td>{{ $application->student_id_number ?: 'Not provided' }}</td></tr>
+            <tr><td>Date of Birth</td><td>{{ $application->date_of_birth ? $application->date_of_birth->format('M d, Y') : 'Not provided' }}</td></tr>
+            <tr><td>Gender</td><td>{{ $application->gender ? (\App\Support\StudentInformation::GENDER_OPTIONS[$application->gender] ?? ucfirst(str_replace('_', ' ', $application->gender))) : 'Not provided' }}</td></tr>
+            <tr><td>School</td><td>{{ $application->school_name ?: 'Not applicable' }}</td></tr>
+            <tr><td>Home Address</td><td>{{ $application->home_address ?: 'Not provided' }}</td></tr>
+            <tr><td>Guardian</td><td>{{ $application->guardian_name ?: 'Not provided' }}</td></tr>
+            <tr><td>Guardian Contact</td><td>{{ $application->guardian_contact_number ?: 'Not provided' }}</td></tr>
+            <tr><td>Emergency Contact</td><td>{{ $application->emergency_contact_number ?: 'Same as guardian contact' }}</td></tr>
             <tr><td>Course</td><td>{{ $application->course }}</td></tr>
             @if($application->message)
             <tr><td>Message</td><td>{{ $application->message }}</td></tr>

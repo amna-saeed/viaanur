@@ -51,6 +51,61 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="apply_student_id_number" class="form-label">Student ID Number <span class="text-danger">*</span></label>
+                                <input type="text" name="student_id_number" id="apply_student_id_number" class="form-control" placeholder="Student ID number" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="apply_date_of_birth" class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                                <input type="date" name="date_of_birth" id="apply_date_of_birth" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="apply_gender" class="form-label">Gender <span class="text-danger">*</span></label>
+                                <select name="gender" id="apply_gender" class="form-control form-select" required>
+                                    <option value="">Select gender</option>
+                                    @foreach(\App\Support\StudentInformation::GENDER_OPTIONS as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="apply_school_name" class="form-label">School Name <span class="text-muted">(if applicable)</span></label>
+                                <input type="text" name="school_name" id="apply_school_name" class="form-control" placeholder="Current school">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="apply_home_address" class="form-label">Home Address <span class="text-danger">*</span></label>
+                        <textarea name="home_address" id="apply_home_address" class="form-control" rows="3" placeholder="Full home address" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="apply_guardian_name" class="form-label">Parent/Guardian Name <span class="text-danger">*</span></label>
+                                <input type="text" name="guardian_name" id="apply_guardian_name" class="form-control" placeholder="Parent or guardian name" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="apply_guardian_contact_number" class="form-label">Parent/Guardian Contact <span class="text-danger">*</span></label>
+                                <input type="tel" name="guardian_contact_number" id="apply_guardian_contact_number" class="form-control" placeholder="Contact number" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="apply_emergency_contact_number" class="form-label">Emergency Contact Number <span class="text-muted">(if different)</span></label>
+                        <input type="tel" name="emergency_contact_number" id="apply_emergency_contact_number" class="form-control" placeholder="Alternative emergency number">
+                    </div>
                     <div class="form-group text-center mt-4">
                         <button type="submit" class="apply-form-btn default-btn2 style-3 border-0">
                             Submit Application
@@ -143,7 +198,7 @@
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 560px;
+    max-width: 760px;
     max-height: 90vh;
     overflow-y: auto;
 }
@@ -231,6 +286,11 @@
     border-radius: 6px;
     transition: border-color 0.2s, background-color 0.2s;
     font-size: 13px;
+}
+.apply-form .form-group textarea.form-control {
+    height: auto;
+    min-height: 92px;
+    padding-top: 12px;
 }
 .apply-form .form-group .form-control::placeholder {
     color: #b0b0b0;
@@ -378,7 +438,9 @@
                 form.reset();
                 if (result.data.mail_sent === false && result.data.mail_error) {
                     console.warn('Mail:', result.data.mail_error);
-                    alert('Application saved.\n\nMail not sent:\n' + result.data.mail_error);
+                    alert('Application saved.\n\nEmail could not be sent:\n' + result.data.mail_error);
+                } else if (result.data.confirmation_sent === false && result.data.mail_error) {
+                    console.warn('Confirmation mail:', result.data.mail_error);
                 }
             } else {
                 alert(result.data.message || 'Something went wrong. Please try again.');

@@ -5,14 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Application extends Model
+class StudentProfile extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'email',
-        'phone',
         'student_id_number',
         'date_of_birth',
         'gender',
@@ -21,18 +18,14 @@ class Application extends Model
         'guardian_name',
         'guardian_contact_number',
         'emergency_contact_number',
-        'course',
-        'course_id',
-        'message',
-        'status',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
     ];
 
-    public function courseRelation()
+    public function user()
     {
-        return $this->belongsTo(Course::class, 'course_id');
+        return $this->belongsTo(User::class);
     }
 }

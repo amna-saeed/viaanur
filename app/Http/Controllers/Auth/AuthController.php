@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\LmsAuth;
+use App\Support\StudentInformation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -43,8 +45,9 @@ class AuthController extends Controller
     public function showRegisterForm()
     {
         $allowAdminOption = config('viaanoor.allow_admin_registration') || ! User::adminExists();
+        $genderOptions = StudentInformation::GENDER_OPTIONS;
 
-        return view('auth.register', compact('allowAdminOption'));
+        return view('auth.register', compact('allowAdminOption', 'genderOptions'));
     }
 
     public function register(Request $request)
@@ -59,16 +62,30 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in($allowedRoles)],
-        ]);
+        ] + ($request->input('role') === User::ROLE_STUDENT ? StudentInformation::profileRules() : []));
 
         $role = $validated['role'];
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $role,
-        ]);
+        $user = DB::transaction(function () use ($validated, $role) {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => $role,
+            ]);
+
+            if ($user->isStudent()) {
+                $user->studentProfile()->create(StudentInformation::profileDataFrom($validated));
+            }
+
+            return $user;
+        });
+
+        if ($user->isStudent()) {
+            return redirect()
+                ->route('student.login')
+                ->with('success', 'Registration complete. Your student login credentials are ready. Please sign in to continue.');
+        }
 
         $user = LmsAuth::applyPostAuthRoleRules($user);
         $guard = $user->isAdmin() ? 'admin' : 'student';

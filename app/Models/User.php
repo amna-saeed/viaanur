@@ -46,6 +46,11 @@ class User extends Authenticatable
         return $this->hasMany(QuizAttempt::class, 'user_id');
     }
 
+    public function studentProfile()
+    {
+        return $this->hasOne(StudentProfile::class);
+    }
+
     public function taughtLmsClasses()
     {
         return $this->hasMany(LmsClass::class, 'teacher_id');
@@ -126,5 +131,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'last_active_at' => 'datetime',
+        'attendance_percentage' => 'decimal:2',
     ];
 }

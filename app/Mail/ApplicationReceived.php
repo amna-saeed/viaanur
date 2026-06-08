@@ -20,8 +20,13 @@ class ApplicationReceived extends Mailable
 
     public function build()
     {
-        return $this->subject('New Application: ' . $this->application->name)
-            ->replyTo($this->application->email)
+        $mailable = $this->from(config('mail.from.address'), config('mail.from.name'))
+            ->subject('[ViAaNur] New application: ' . $this->application->name)
+            ->replyTo($this->application->email, $this->application->name)
             ->view('emails.application-received');
+
+        return $mailable->withSwiftMessage(function ($message) {
+            $message->getHeaders()->addTextHeader('X-Auto-Response-Suppress', 'All');
+        });
     }
 }

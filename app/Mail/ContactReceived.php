@@ -25,8 +25,9 @@ class ContactReceived extends Mailable
 
     public function build()
     {
-        return $this->subject('Contact form: ' . $this->name)
-            ->replyTo($this->email)
+        return $this->from(config('mail.from.address'), config('mail.from.name'))
+            ->subject('[ViAaNur] Contact form: ' . $this->name)
+            ->replyTo($this->email, $this->name)
             ->view('emails.contact-received');
     }
 }

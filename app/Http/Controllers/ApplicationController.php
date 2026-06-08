@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Mail\ApplicationConfirmation;
 use App\Mail\ApplicationReceived;
+use App\Support\OutboundMail;
+use App\Support\StudentInformation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class ApplicationController extends Controller
 {
@@ -17,47 +18,47 @@ class ApplicationController extends Controller
             'email' => 'required|email',
             'phone' => 'required|string|max:50',
             'course' => 'required|string|max:100',
-        ]);
+            'message' => 'nullable|string|max:2000',
+        ] + StudentInformation::applicationRules());
 
         $application = Application::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'],
+            'student_id_number' => $validated['student_id_number'],
+            'date_of_birth' => $validated['date_of_birth'],
+            'gender' => $validated['gender'],
+            'school_name' => $validated['school_name'] ?? null,
+            'home_address' => $validated['home_address'],
+            'guardian_name' => $validated['guardian_name'],
+            'guardian_contact_number' => $validated['guardian_contact_number'],
+            'emergency_contact_number' => $validated['emergency_contact_number'] ?? null,
             'course' => $validated['course'],
-            'message' => $request->input('message'),
+            'message' => $validated['message'] ?? null,
         ]);
 
         $toEmail = config('mail.application_to', 'admin@viaanur.com');
         $bccRaw = (string) config('mail.application_bcc', '');
         $bccList = array_values(array_filter(array_map('trim', explode(',', $bccRaw))));
-        $mailSent = false;
-        $mailError = null;
-        $mailable = new ApplicationReceived($application);
 
-        $username = config('mail.mailers.smtp.username');
-        $password = config('mail.mailers.smtp.password');
-        if (empty($username) || empty($password)) {
-            $mailError = 'Set MAIL_USERNAME and MAIL_PASSWORD (One.com) in .env, then php artisan config:clear';
-        } else {
-            $mailersToTry = ['onecom_send_587', 'onecom_send_465', 'onecom_send_25', 'smtp', 'onecom_mailout_587', 'onecom_mailout_465'];
-            foreach ($mailersToTry as $mailerName) {
-                try {
-                    $pending = Mail::mailer($mailerName)->to($toEmail);
-                    if ($bccList !== []) {
-                        $pending->bcc($bccList);
-                    }
-                    $pending->send($mailable);
-                    $mailSent = true;
-                    $mailError = null;
-                    Log::info('Application notification email accepted by SMTP', [
-                        'to' => $toEmail,
-                        'mailer' => $mailerName,
-                    ]);
-                    break;
-                } catch (\Exception $e) {
-                    \Log::warning('Application email failed: ' . $mailerName, ['message' => $e->getMessage()]);
-                    $mailError = $e->getMessage();
-                }
+        $adminResult = OutboundMail::send(
+            new ApplicationReceived($application),
+            $toEmail,
+            $bccList
+        );
+
+        $mailSent = $adminResult['sent'];
+        $mailError = $adminResult['error'];
+        $confirmationSent = false;
+
+        if (config('mail.send_applicant_confirmation', false)) {
+            $confirmationResult = OutboundMail::send(
+                new ApplicationConfirmation($application),
+                $application->email
+            );
+            $confirmationSent = $confirmationResult['sent'];
+            if (! $mailSent) {
+                $mailError = $adminResult['error'] ?? 'Admin notification to One.com failed.';
             }
         }
 
@@ -65,11 +66,21 @@ class ApplicationController extends Controller
             ? 'Your request has been submitted successfully. We will reach out to you soon.'
             : 'Application saved. Email could not be sent (see error below).';
 
+        $deliveryNote = OutboundMail::localDeliveryNote();
+        if ($mailSent && ! ($adminResult['inbox_delivery'] ?? false) && $deliveryNote === null) {
+            $deliveryNote = 'Email was handed off to SMTP. If admin@viaanur.com inbox is still empty, enable MAIL_ONE_COM_HOSTED and MAIL_USE_ONE_COM_PHP_MAIL on your live One.com server.';
+        }
+
         return response()->json([
             'success' => true,
             'mail_sent' => $mailSent,
+            'admin_mail_sent' => $mailSent,
+            'admin_mail_to' => $toEmail,
+            'inbox_delivery' => $adminResult['inbox_delivery'] ?? false,
+            'confirmation_sent' => $confirmationSent,
             'message' => $message,
             'mail_error' => $mailError,
+            'delivery_note' => $deliveryNote,
         ], 200);
     }
 }

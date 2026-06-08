@@ -3,16 +3,17 @@
 @section('page_heading', 'Edit Student Information')
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">Edit: {{ $student->name }}</h5>
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom p-4">
+        <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Edit: {{ $student->name }}</h5>
     </div>
-    <div class="card-body">
+    <div class="card-body p-4">
         <form action="{{ route('admin.students.update', $student) }}" method="POST">
             @csrf
             @method('PUT')
-            
-            <div class="row">
+
+            <h6 class="text-uppercase text-muted fw-bold mb-3">Login Credentials</h6>
+            <div class="row g-3">
                 <div class="col-md-6">
                     <label for="name" class="form-label">Full Name *</label>
                     <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" required value="{{ old('name', $student->name) }}">
@@ -23,17 +24,12 @@
                     <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" required value="{{ old('email', $student->email) }}">
                     @error('email')<span class="invalid-feedback">{{ $message }}</span>@enderror
                 </div>
-            </div>
-
-            <div class="row mt-3">
                 <div class="col-md-6">
                     <label for="phone" class="form-label">Phone Number (Optional)</label>
                     <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $student->phone) }}">
                     @error('phone')<span class="invalid-feedback">{{ $message }}</span>@enderror
                 </div>
-            </div>
-
-            <div class="row mt-3">
+                <div class="col-md-6"></div>
                 <div class="col-md-6">
                     <label for="password" class="form-label">New Password (leave blank to keep current)</label>
                     <div class="input-group">
@@ -57,9 +53,14 @@
                 </div>
             </div>
 
+            <h6 class="text-uppercase text-muted fw-bold mt-4 mb-3">Student Information</h6>
+            @include('partials.student-information-fields', ['profile' => $student->studentProfile, 'genderOptions' => $genderOptions])
+
             <div class="mt-4">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{{ route('admin.students.show', $student) }}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-check-circle me-2"></i>Save Changes
+                </button>
+                <a href="{{ route('admin.students.show', $student) }}" class="btn btn-outline-secondary btn-lg">Cancel</a>
             </div>
         </form>
     </div>

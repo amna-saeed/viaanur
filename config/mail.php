@@ -152,11 +152,19 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    // All form emails → admin@viaanur.com (https://mail.one.com)
     'application_to' => env('MAIL_APPLICATION_TO', 'admin@viaanur.com'),
     'contact_to' => env('MAIL_CONTACT_TO', 'admin@viaanur.com'),
 
-    // Optional: BCC copy to your Gmail when admin@ bounces (e.g. One.com relay issue)
     'application_bcc' => env('MAIL_APPLICATION_BCC', null),
+
+    'send_applicant_confirmation' => env('MAIL_SEND_APPLICANT_CONFIRMATION', false),
+
+    // true on live site hosted at One.com (enables mailout + PHP mail — real inbox delivery)
+    'one_com_hosted' => env('MAIL_ONE_COM_HOSTED', false),
+
+    // true on live One.com: use PHP mail() first (recommended by One.com for websites)
+    'use_one_com_php_mail' => env('MAIL_USE_ONE_COM_PHP_MAIL', false),
 
     /*
     |--------------------------------------------------------------------------

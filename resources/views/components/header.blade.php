@@ -55,7 +55,7 @@
                             </a>
                         </li> -->
                        <li class="nav-item">
-                            <a href="#courses-move" class="nav-link menu-link">
+                            <a href="{{ url('/') }}#courses-move" class="nav-link menu-link">
                                 Courses
                                 <i class="fas fa-arrow-right"></i>
                             </a>
@@ -77,11 +77,9 @@
                         </li>
                     </ul>
                     <div class="others-option position-relative d-flex align-items-center gap-2">
-                       
-                       
-                            <div class="option-item">
-                                <a href="{{ route('login') }}" class="header-nav-btn"> <i class="bi bi-person-fill ml-2"></i>Sign in</a>
-                            </div>
+                        <div class="option-item">
+                            <a href="{{ route('login') }}" class="header-nav-btn"> <i class="bi bi-person-fill ml-2"></i>Sign in</a>
+                        </div>
                     </div>
                 </div>
             </nav>

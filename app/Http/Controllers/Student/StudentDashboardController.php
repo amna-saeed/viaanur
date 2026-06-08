@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\LmsEnrollment;
 use App\Models\User;
 use App\Services\LmsDashboardStatsService;
+use App\Support\StudentInformation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -65,6 +66,14 @@ class StudentDashboardController extends Controller
             'summary',
             'quizzesTriedByCourseId'
         ));
+    }
+
+    public function profile(): View
+    {
+        $student = auth()->user()->loadMissing('studentProfile');
+        $genderOptions = StudentInformation::GENDER_OPTIONS;
+
+        return view('student.profile', compact('student', 'genderOptions'));
     }
 
     public function enroll(Request $request, Course $course): RedirectResponse

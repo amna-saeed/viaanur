@@ -4,17 +4,17 @@ namespace App\Console\Commands;
 
 use App\Models\Application;
 use App\Mail\ApplicationReceived;
+use App\Support\OutboundMail;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
 
 class TestApplicationMail extends Command
 {
-    protected $signature = 'mail:test-application {to=admin@viaanur.com}';
+    protected $signature = 'mail:test-application {to?}';
     protected $description = 'Send a test application email to check SMTP (e.g. php artisan mail:test-application)';
 
     public function handle()
     {
-        $to = $this->argument('to');
+        $to = $this->argument('to') ?? config('mail.application_to', 'admin@viaanur.com');
         $this->info("Sending test application email to: {$to}");
 
         $application = new Application([
@@ -25,13 +25,17 @@ class TestApplicationMail extends Command
         ]);
         $application->id = 0;
 
-        try {
-            Mail::to($to)->send(new ApplicationReceived($application));
-            $this->info('Email sent successfully. Check inbox (and Spam).');
+        $result = OutboundMail::send(new ApplicationReceived($application), $to);
+        if ($result['sent']) {
+            $this->info('Email sent via ' . $result['mailer'] . '. Check admin@viaanur.com at https://mail.one.com (Inbox + Spam).');
+            $note = \App\Support\OutboundMail::localDeliveryNote();
+            if ($note) {
+                $this->warn($note);
+            }
             return 0;
-        } catch (\Exception $e) {
-            $this->error('Mail failed: ' . $e->getMessage());
-            return 1;
         }
+
+        $this->error('Mail failed: ' . ($result['error'] ?? 'unknown error'));
+        return 1;
     }
 }
