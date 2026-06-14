@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\Student;
 use App\Support\LmsAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +27,12 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        if (! Student::where('email', $credentials['email'])->exists()) {
+            throw ValidationException::withMessages([
+                'email' => ['You are not registered yet. Please register first to continue.'],
+            ]);
+        }
+
         if (! Auth::guard('student')->attempt($credentials, $request->boolean('remember'))) {
             throw ValidationException::withMessages([
                 'email' => [__('auth.failed')],
@@ -38,11 +45,10 @@ class AuthController extends Controller
 
         if ($user->isAdmin()) {
             Auth::guard('student')->logout();
-            Auth::guard('admin')->login($user);
-            Auth::guard('admin')->setUser($user);
-            LmsAuth::syncRoleToSession($request, $user);
 
-            return redirect()->intended(route('admin.dashboard'));
+            throw ValidationException::withMessages([
+                'email' => ['This account has admin access. Please sign in at the admin login page.'],
+            ]);
         }
 
         Auth::guard('student')->setUser($user);
@@ -53,9 +59,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::guard('student')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        LmsAuth::logoutGuard($request, 'student');
 
         return redirect()->route('student.login');
     }

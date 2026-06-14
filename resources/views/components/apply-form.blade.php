@@ -54,8 +54,8 @@
                     <div class="row">
                         <div class="col-lg-6 col-md-6">
                             <div class="form-group">
-                                <label for="apply_student_id_number" class="form-label">Student ID Number <span class="text-danger">*</span></label>
-                                <input type="text" name="student_id_number" id="apply_student_id_number" class="form-control" placeholder="Student ID number" required>
+                                <label for="apply_student_id_number" class="form-label">ID Card Number <span class="text-danger">*</span></label>
+                                <input type="text" name="student_id_number" id="apply_student_id_number" class="form-control" placeholder="13-digit ID card number" inputmode="numeric" pattern="\d{13}" minlength="13" maxlength="13" title="Enter a 13-digit ID card number" required>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6">

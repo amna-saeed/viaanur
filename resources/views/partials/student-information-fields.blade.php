@@ -8,8 +8,9 @@
 
 <div class="row g-3">
     <div class="col-md-6">
-        <label for="student_id_number" class="form-label">Student ID Number <span class="text-danger">*</span></label>
-        <input type="text" class="form-control @error('student_id_number') is-invalid @enderror" id="student_id_number" name="student_id_number" value="{{ old('student_id_number', optional($profile)->student_id_number) }}" @if($conditional) data-student-required="true" @else required @endif>
+        <label for="student_id_number" class="form-label">ID Card Number <span class="text-danger">*</span></label>
+        <input type="text" class="form-control @error('student_id_number') is-invalid @enderror" id="student_id_number" name="student_id_number" value="{{ old('student_id_number', optional($profile)->student_id_number) }}" inputmode="numeric" pattern="\d{13}" minlength="13" maxlength="13" title="Enter a 13-digit ID card number" @if($conditional) data-student-required="true" @else required @endif>
+        <small class="text-muted">Must be exactly 13 digits.</small>
         @error('student_id_number')<span class="invalid-feedback">{{ $message }}</span>@enderror
     </div>
     <div class="col-md-6">

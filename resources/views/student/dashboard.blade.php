@@ -33,18 +33,25 @@
 
 <section class="mb-4 mb-lg-5" aria-labelledby="student-stats-heading">
     <header class="student-dash-section-head student-dash-section-head--compact">
-        <h2 id="student-stats-heading" class="student-dash-section-head__title">Overview</h2>
-        <p class="student-dash-section-head__sub">Your learning activity at a glance</p>
+        <div>
+            <h2 id="student-stats-heading" class="student-dash-section-head__title">Overview</h2>
+            <p class="student-dash-section-head__sub">Your learning activity at a glance</p>
+        </div>
+        @if($enrollmentProgress->isNotEmpty())
+            <a href="{{ route('student.progress') }}" class="btn btn-sm btn-outline-primary">View all progress</a>
+        @endif
     </header>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3 g-lg-4">
         <div class="col">
-            <article class="student-dash-stat student-dash-stat--primary" data-hs-widget="student-stat">
-                <div class="student-dash-stat__icon" aria-hidden="true"><i class="bi bi-bookmark-check-fill"></i></div>
-                <div class="student-dash-stat__body">
-                    <span class="student-dash-stat__label">My courses</span>
-                    <span class="student-dash-stat__value">{{ $summary['enrolled_count'] }}</span>
-                </div>
-            </article>
+            <a href="{{ route('student.my-courses') }}" class="text-decoration-none d-block h-100">
+                <article class="student-dash-stat student-dash-stat--primary h-100" data-hs-widget="student-stat">
+                    <div class="student-dash-stat__icon" aria-hidden="true"><i class="bi bi-bookmark-check-fill"></i></div>
+                    <div class="student-dash-stat__body">
+                        <span class="student-dash-stat__label">My courses</span>
+                        <span class="student-dash-stat__value">{{ $summary['enrolled_count'] }}</span>
+                    </div>
+                </article>
+            </a>
         </div>
         <div class="col">
             <article class="student-dash-stat student-dash-stat--violet" data-hs-widget="student-stat">
@@ -88,78 +95,57 @@
     </div>
 </section>
 
+<section class="mb-4 mb-lg-5" aria-labelledby="student-quick-links-heading">
+    <header class="student-dash-section-head student-dash-section-head--compact">
+        <h2 id="student-quick-links-heading" class="student-dash-section-head__title">Quick access</h2>
+        <p class="student-dash-section-head__sub">Open your courses, attendance, and progress</p>
+    </header>
+    <div class="row g-3 g-lg-4">
+        <div class="col-md-4">
+            <a href="{{ route('student.my-courses') }}" class="student-dash-quick-link">
+                <span class="student-dash-quick-link__icon student-dash-quick-link__icon--primary" aria-hidden="true"><i class="bi bi-journal-bookmark-fill"></i></span>
+                <span class="student-dash-quick-link__body">
+                    <span class="student-dash-quick-link__title">My courses</span>
+                    <span class="student-dash-quick-link__text">{{ $summary['enrolled_count'] }} enrolled · View all courses</span>
+                </span>
+                <i class="bi bi-chevron-right student-dash-quick-link__arrow" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('student.attendance') }}" class="student-dash-quick-link">
+                <span class="student-dash-quick-link__icon student-dash-quick-link__icon--teal" aria-hidden="true"><i class="bi bi-calendar-check-fill"></i></span>
+                <span class="student-dash-quick-link__body">
+                    <span class="student-dash-quick-link__title">Attendance</span>
+                    <span class="student-dash-quick-link__text">
+                        @if($summary['attendance_percentage'] !== null)
+                            {{ number_format((float) $summary['attendance_percentage'], 1) }}% rate · Leave requests
+                        @else
+                            View records · Request leave
+                        @endif
+                    </span>
+                </span>
+                <i class="bi bi-chevron-right student-dash-quick-link__arrow" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('student.progress') }}" class="student-dash-quick-link">
+                <span class="student-dash-quick-link__icon student-dash-quick-link__icon--violet" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+                <span class="student-dash-quick-link__body">
+                    <span class="student-dash-quick-link__title">Progress</span>
+                    <span class="student-dash-quick-link__text">Quiz completion by course</span>
+                </span>
+                <i class="bi bi-chevron-right student-dash-quick-link__arrow" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
 <div class="row g-4 g-xl-5 align-items-start">
     <div class="col-12 col-xl-7">
-        <section aria-labelledby="my-courses-heading">
-            <header class="student-dash-section-head">
-                <div>
-                    <h2 id="my-courses-heading" class="student-dash-section-head__title">My courses</h2>
-                    <p class="student-dash-section-head__sub">Courses you are currently enrolled in</p>
-                </div>
-                @if($enrollments->isNotEmpty())
-                    <span class="badge rounded-pill student-dash-badge">{{ $enrollments->count() }} active</span>
-                @endif
-            </header>
-
-            @if($enrollments->isEmpty())
-                <div class="student-dash-panel student-dash-panel--empty">
-                    <i class="bi bi-journal-bookmark student-dash-panel__empty-icon" aria-hidden="true"></i>
-                    <p class="student-dash-panel__empty-title">No enrollments yet</p>
-                    <p class="student-dash-panel__empty-text mb-0">Browse the catalog below and enroll in a course to get started.</p>
-                </div>
-            @else
-                <div class="row g-3 g-lg-4">
-                    @foreach($enrollments as $enrollment)
-                        @if($course = $enrollment->course)
-                            @php
-                                $tried = (int) ($quizzesTriedByCourseId[$course->id] ?? 0);
-                                $totalQuizzes = (int) $course->quizzes_count;
-                                $progressPct = $totalQuizzes > 0 ? min(100, (int) round($tried / $totalQuizzes * 100)) : 0;
-                            @endphp
-                            <div class="col-md-6">
-                                <article class="student-dash-course-card h-100">
-                                    @if($course->image)
-                                        <img class="student-dash-course-card__media" src="{{ asset('storage/' . $course->image) }}" alt="Course image: {{ $course->title }}" width="640" height="360" loading="lazy" decoding="async">
-                                    @else
-                                        <div class="student-dash-course-card__media student-dash-course-card__media--placeholder" aria-hidden="true">
-                                            <i class="bi bi-mortarboard"></i>
-                                        </div>
-                                    @endif
-                                    <div class="student-dash-course-card__body">
-                                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
-                                            <h3 class="student-dash-course-card__title">{{ $course->title }}</h3>
-                                            <span class="badge student-dash-badge student-dash-badge--success">Enrolled</span>
-                                        </div>
-                                        @if($course->description)
-                                            <p class="student-dash-course-card__desc">{{ \Illuminate\Support\Str::limit(strip_tags($course->description), 100) }}</p>
-                                        @endif
-                                        <ul class="student-dash-meta list-unstyled mb-3">
-                                            <li><i class="bi bi-collection-play" aria-hidden="true"></i> {{ (int) $course->lessons_count }} lessons</li>
-                                            <li><i class="bi bi-patch-question" aria-hidden="true"></i> {{ (int) $course->quizzes_count }} quizzes</li>
-                                            <li><i class="bi bi-calendar3" aria-hidden="true"></i> {{ $enrollment->created_at->format('M j, Y') }}</li>
-                                        </ul>
-                                        @if($totalQuizzes > 0)
-                                            <div class="student-dash-progress-wrap">
-                                                <div class="student-dash-progress-label">
-                                                    <span>Quiz engagement</span>
-                                                    <span class="student-dash-progress-value">{{ $tried }}/{{ $totalQuizzes }}</span>
-                                                </div>
-                                                <div class="student-dash-progress" role="progressbar" aria-valuenow="{{ $progressPct }}" aria-valuemin="0" aria-valuemax="100" aria-label="Quiz engagement for {{ $course->title }}">
-                                                    <div class="student-dash-progress__bar" style="width: {{ $progressPct }}%"></div>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </article>
-                            </div>
-                        @endif
-                    @endforeach
-                </div>
-            @endif
-        </section>
+        @include('student.partials.dashboard-highlights')
     </div>
 
-    <div class="col-12 col-xl-5">
+    <div class="col-12 col-xl-5 student-dash-sidebar-col">
         <section aria-labelledby="announcements-heading">
             <header class="student-dash-section-head">
                 <div>
@@ -195,6 +181,98 @@
         </section>
     </div>
 </div>
+
+<section class="student-dash-recent mt-4 mt-xl-5" aria-labelledby="recent-activity-heading">
+    <header class="student-dash-section-head">
+        <div>
+            <h2 id="recent-activity-heading" class="student-dash-section-head__title">Recent activity</h2>
+            <p class="student-dash-section-head__sub">Your latest enrollments and quiz results</p>
+        </div>
+    </header>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="student-dash-panel student-dash-panel--table h-100">
+                <div class="student-dash-panel__head d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                    <h3 class="student-dash-panel__title mb-0">Recent enrollments</h3>
+                    <a href="{{ route('student.my-courses') }}" class="btn btn-sm btn-outline-primary">My courses</a>
+                </div>
+                <div class="student-dash-panel__body student-dash-panel__body--flush">
+                    @if($recentEnrollmentActivity->isEmpty())
+                        <div class="student-dash-panel student-dash-panel--empty student-dash-panel--empty-inline">
+                            <i class="bi bi-journal-bookmark student-dash-panel__empty-icon" aria-hidden="true"></i>
+                            <p class="student-dash-panel__empty-text mb-0">No enrollments yet.</p>
+                        </div>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-hover student-dash-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Enrolled</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($recentEnrollmentActivity as $enrollment)
+                                        <tr>
+                                            <td class="fw-semibold">{{ $enrollment->course?->title ?? 'Course removed' }}</td>
+                                            <td class="text-muted">{{ $enrollment->created_at->format('M j, Y') }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="student-dash-panel student-dash-panel--table h-100">
+                <div class="student-dash-panel__head">
+                    <h3 class="student-dash-panel__title mb-0">Recent quiz attempts</h3>
+                </div>
+                <div class="student-dash-panel__body student-dash-panel__body--flush">
+                    @if($recentQuizAttempts->isEmpty())
+                        <div class="student-dash-panel student-dash-panel--empty student-dash-panel--empty-inline">
+                            <i class="bi bi-clipboard-x student-dash-panel__empty-icon" aria-hidden="true"></i>
+                            <p class="student-dash-panel__empty-text mb-0">No quiz attempts yet.</p>
+                        </div>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-hover student-dash-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Quiz</th>
+                                        <th>Course</th>
+                                        <th>Score</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($recentQuizAttempts as $attempt)
+                                        <tr>
+                                            <td class="fw-semibold">{{ $attempt->quiz?->title ?? 'Quiz removed' }}</td>
+                                            <td class="text-muted">{{ $attempt->quiz?->course?->title ?? '—' }}</td>
+                                            <td>
+                                                @if($attempt->percentage !== null)
+                                                    <span class="badge rounded-pill {{ $attempt->is_passed ? 'student-dash-badge student-dash-badge--success' : 'student-dash-badge student-dash-badge--muted' }}">
+                                                        {{ round((float) $attempt->percentage) }}%
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted">—</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-muted">{{ $attempt->submitted_at?->format('M j, Y') }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <section class="student-dash-catalog mt-4 mt-xl-5 pt-2" aria-labelledby="catalog-heading">
     <header class="student-dash-section-head">

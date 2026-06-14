@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Single place for LMS role-based auth after login/register (no duplicate redirect logic).
@@ -35,5 +36,22 @@ class LmsAuth
     public static function syncRoleToSession(Request $request, User $user): void
     {
         $request->session()->put('auth.role', $user->role);
+    }
+
+    /**
+     * Log out one guard without destroying sessions for other guards.
+     */
+    public static function logoutGuard(Request $request, string $guard): void
+    {
+        Auth::guard($guard)->logout();
+
+        $otherGuardsStillLoggedIn = collect(['admin', 'student'])
+            ->reject(fn (string $name) => $name === $guard)
+            ->contains(fn (string $name) => Auth::guard($name)->check());
+
+        if (! $otherGuardsStillLoggedIn) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
     }
 }

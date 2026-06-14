@@ -19,11 +19,12 @@ class RedirectIfAuthenticated
      */
     public function handle(Request $request, Closure $next, ...$guards)
     {
-        $guards = empty($guards) ? [null, 'admin', 'student'] : $guards;
+        $guards = empty($guards) ? [null] : $guards;
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
                 $user = Auth::guard($guard)->user();
+
                 return redirect()->route(LmsAuth::dashboardRouteName($user));
             }
         }

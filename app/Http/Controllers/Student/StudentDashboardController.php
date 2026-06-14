@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\LeaveRequest;
 use App\Models\LmsEnrollment;
 use App\Models\User;
 use App\Services\LmsDashboardStatsService;
+use App\Services\LeaveRequestService;
 use App\Support\StudentInformation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class StudentDashboardController extends Controller
@@ -19,12 +20,8 @@ class StudentDashboardController extends Controller
     {
         $user = auth()->user();
 
-        $enrollments = $user->lmsEnrollments()
-            ->with(['course' => fn ($q) => $q->withCount(['lessons', 'quizzes'])])
-            ->orderByDesc('created_at')
-            ->get();
-
-        $enrolledCourseIds = $enrollments->pluck('course_id');
+        $enrolledCourseIds = $user->lmsEnrollments()->pluck('course_id');
+        $enrolledCount = $enrolledCourseIds->count();
 
         $catalog = Course::query()
             ->where('is_published', true)
@@ -36,44 +33,121 @@ class StudentDashboardController extends Controller
         $announcements = $lmsStats->publishedAnnouncements(5);
         $canClaimAdmin = ! User::adminExists();
 
-        $courses = $enrollments->pluck('course')->filter();
-
-        $quizzesTriedByCourseId = DB::table('quiz_attempts')
-            ->join('quizzes', 'quiz_attempts.quiz_id', '=', 'quizzes.id')
-            ->where('quiz_attempts.user_id', $user->id)
-            ->whereNotNull('quiz_attempts.submitted_at')
-            ->groupBy('quizzes.course_id')
-            ->selectRaw('quizzes.course_id, COUNT(DISTINCT quiz_attempts.quiz_id) as cnt')
-            ->pluck('cnt', 'course_id')
-            ->mapWithKeys(fn ($count, $courseId) => [(int) $courseId => (int) $count]);
+        $courses = Course::query()
+            ->whereIn('id', $enrolledCourseIds)
+            ->withCount(['lessons', 'quizzes'])
+            ->get();
 
         $submittedAttempts = $user->quizAttempts()->whereNotNull('submitted_at');
         $summary = [
-            'enrolled_count' => $enrollments->count(),
+            'enrolled_count' => $enrolledCount,
             'catalog_count' => $catalog->count(),
             'announcements_count' => $announcements->count(),
             'lessons_in_enrolled' => (int) $courses->sum('lessons_count'),
             'quizzes_in_enrolled' => (int) $courses->sum('quizzes_count'),
             'quiz_attempts' => (clone $submittedAttempts)->count(),
             'quiz_avg_percent' => (clone $submittedAttempts)->avg('percentage'),
+            'attendance_percentage' => $user->attendance_percentage,
         ];
 
+        $recentQuizAttempts = $lmsStats->recentQuizAttempts($user, 8);
+        $recentEnrollmentActivity = $lmsStats->recentEnrollments($user, 5);
+        $enrollmentProgress = $lmsStats->enrollmentProgressFor($user);
+        $highlights = $lmsStats->studentHighlights($user, $lmsStats->highlightSinceFromSession());
+
+        app()->terminating(function () use ($lmsStats) {
+            $lmsStats->markDashboardSeen();
+        });
+
         return view('student.dashboard', compact(
-            'enrollments',
             'catalog',
             'announcements',
             'canClaimAdmin',
             'summary',
-            'quizzesTriedByCourseId'
+            'recentQuizAttempts',
+            'recentEnrollmentActivity',
+            'enrollmentProgress',
+            'highlights'
         ));
     }
 
-    public function profile(): View
+    public function myCourses(LmsDashboardStatsService $lmsStats): View
+    {
+        $user = auth()->user();
+        $enrollmentProgress = $lmsStats->enrollmentProgressFor($user);
+        $progressSummary = $lmsStats->progressSummary($enrollmentProgress);
+
+        return view('student.my-courses', compact('enrollmentProgress', 'progressSummary'));
+    }
+
+    public function progress(LmsDashboardStatsService $lmsStats): View
+    {
+        $user = auth()->user();
+        $enrollmentProgress = $lmsStats->enrollmentProgressFor($user);
+        $progressSummary = $lmsStats->progressSummary($enrollmentProgress);
+
+        return view('student.progress', compact('enrollmentProgress', 'progressSummary'));
+    }
+
+    public function attendance(LmsDashboardStatsService $lmsStats): View
+    {
+        $user = auth()->user();
+        $attendance = $lmsStats->attendanceSummaryFor($user);
+
+        return view('student.attendance', compact('attendance', 'user'));
+    }
+
+    public function storeLeaveRequest(Request $request, LeaveRequestService $leaveService): RedirectResponse
+    {
+        $validated = $request->validate([
+            'start_date' => ['required', 'date', 'after_or_equal:today'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'reason' => ['required', 'string', 'min:10', 'max:1000'],
+        ], [
+            'start_date.after_or_equal' => 'Leave start date cannot be in the past.',
+            'end_date.after_or_equal' => 'End date must be on or after the start date.',
+            'reason.min' => 'Please provide a brief reason (at least 10 characters).',
+        ]);
+
+        if ($leaveService->hasOverlappingPending(
+            $request->user()->id,
+            $validated['start_date'],
+            $validated['end_date']
+        )) {
+            return redirect()
+                ->route('student.attendance')
+                ->withInput()
+                ->with('error', 'You already have a pending leave request for overlapping dates.');
+        }
+
+        LeaveRequest::create([
+            'user_id' => $request->user()->id,
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'reason' => $validated['reason'],
+            'status' => LeaveRequest::STATUS_PENDING,
+        ]);
+
+        return redirect()
+            ->route('student.attendance')
+            ->with('success', 'Your leave request has been submitted and is pending admin review.');
+    }
+
+    public function profile(LmsDashboardStatsService $lmsStats): View
     {
         $student = auth()->user()->loadMissing('studentProfile');
         $genderOptions = StudentInformation::GENDER_OPTIONS;
+        $enrollmentProgress = $lmsStats->enrollmentProgressFor($student);
+        $quizAttemptsCount = $student->quizAttempts()->whereNotNull('submitted_at')->count();
+        $enrolledCount = $student->lmsEnrollments()->count();
 
-        return view('student.profile', compact('student', 'genderOptions'));
+        return view('student.profile', compact(
+            'student',
+            'genderOptions',
+            'enrollmentProgress',
+            'quizAttemptsCount',
+            'enrolledCount'
+        ));
     }
 
     public function enroll(Request $request, Course $course): RedirectResponse

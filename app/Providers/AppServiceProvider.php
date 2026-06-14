@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\LeaveRequest;
+use App\Services\LmsDashboardStatsService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +27,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        View::composer('student.partials.sidebar-nav', function ($view) {
+            if (! Auth::guard('student')->check()) {
+                return;
+            }
+
+            $lmsStats = app(LmsDashboardStatsService::class);
+            $highlights = $lmsStats->studentHighlights(
+                Auth::guard('student')->user(),
+                $lmsStats->highlightSinceFromSession()
+            );
+
+            $view->with('navHighlightCount', $highlights['count']);
+        });
+
+        View::composer('admin.partials.sidebar-nav', function ($view) {
+            if (! Auth::guard('admin')->check()) {
+                return;
+            }
+
+            $view->with('pendingLeaveCount', LeaveRequest::query()
+                ->where('status', LeaveRequest::STATUS_PENDING)
+                ->count());
+        });
     }
 }

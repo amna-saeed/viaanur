@@ -15,7 +15,7 @@ class AdminStudentController extends Controller
     {
         $query = User::with('studentProfile')
             ->where('role', User::ROLE_STUDENT)
-            ->orderBy('name');
+            ->latest();
 
         if ($request->filled('q')) {
             $q = $request->q;
@@ -28,7 +28,7 @@ class AdminStudentController extends Controller
             });
         }
 
-        $students = $query->paginate(15)->withQueryString();
+        $students = $query->paginate(10)->withQueryString();
         return view('admin.students.index', compact('students'));
     }
 
@@ -46,7 +46,7 @@ class AdminStudentController extends Controller
             'email' => 'required|email|max:255|unique:users,email',
             'phone' => 'nullable|string|max:20',
             'password' => 'required|string|min:8|confirmed',
-        ] + StudentInformation::profileRules());
+        ] + StudentInformation::profileRules(), StudentInformation::validationMessages());
 
         $student = DB::transaction(function () use ($validated) {
             $student = User::create([
@@ -96,7 +96,7 @@ class AdminStudentController extends Controller
             'email' => 'required|email|max:255|unique:users,email,' . $student->id,
             'phone' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
-        ] + StudentInformation::profileRules(optional($student->studentProfile)->id));
+        ] + StudentInformation::profileRules(optional($student->studentProfile)->id), StudentInformation::validationMessages());
 
         DB::transaction(function () use ($student, $validated, $request) {
             $data = [
@@ -117,6 +117,41 @@ class AdminStudentController extends Controller
         });
 
         return redirect()->route('admin.students.show', $student)->with('success', 'Student information updated successfully.');
+    }
+
+    public function updateProfileRecords(Request $request, User $student)
+    {
+        $this->ensureStudent($student);
+
+        $validated = $request->validate(
+            StudentInformation::dashboardMetricsRules() + StudentInformation::academicInfoRules()
+        );
+
+        $student->loadMissing('studentProfile');
+
+        if (! $student->studentProfile) {
+            return redirect()
+                ->route('admin.students.show', $student)
+                ->with('error', 'Complete basic student information before saving dashboard and academic records.');
+        }
+
+        $student->update([
+            'attendance_percentage' => $validated['attendance_percentage'] ?? 0,
+        ]);
+
+        $profileData = array_merge(
+            StudentInformation::dashboardMetricsFrom($validated),
+            StudentInformation::academicInfoFrom($validated)
+        );
+
+        $profileData['total_sessions_booked'] = (int) ($profileData['total_sessions_booked'] ?? 0);
+        $profileData['total_sessions_attended'] = (int) ($profileData['total_sessions_attended'] ?? 0);
+
+        $student->studentProfile->update($profileData);
+
+        return redirect()
+            ->route('admin.students.show', $student)
+            ->with('success', 'Dashboard metrics and academic information saved successfully.');
     }
 
     private function ensureStudent(User $student): void

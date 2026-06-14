@@ -77,9 +77,21 @@
                         </li>
                     </ul>
                     <div class="others-option position-relative d-flex align-items-center gap-2">
-                        <div class="option-item">
-                            <a href="{{ route('login') }}" class="header-nav-btn"> <i class="bi bi-person-fill ml-2"></i>Sign in</a>
-                        </div>
+                        @if (auth('student')->check())
+                            <div class="option-item">
+                                <a href="{{ route('student.dashboard') }}" class="header-nav-btn">Dashboard</a>
+                            </div>
+                            <div class="option-item">
+                                <form action="{{ route('student.logout') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="header-nav-btn header-nav-btn-outline">Sign out</button>
+                                </form>
+                            </div>
+                        @else
+                            <div class="option-item">
+                                <a href="{{ route('student.login') }}" class="header-nav-btn"> <i class="bi bi-person-fill ml-2"></i>Sign in</a>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </nav>
@@ -99,28 +111,19 @@
             <div class="container">
                 <div class="option-inner">
                     <div class="others-options justify-content-center d-flex align-items-center gap-2 flex-wrap">
-                        @php
-                            $adminActive = auth()->check() && auth()->user()->isAdmin();
-                            $studentActive = auth()->check() && auth()->user()->isStudent();
-
-                            if (! auth()->check()) {
-                                $adminActive = auth('admin')->check();
-                                $studentActive = auth('student')->check() && ! $adminActive;
-                            }
-                        @endphp
-                        @if ($adminActive || $studentActive)
+                        @if (auth('student')->check())
                             <div class="option-item">
-                                <a href="{{ route($adminActive ? 'admin.dashboard' : 'student.dashboard') }}" class="header-nav-btn">Dashboard</a>
+                                <a href="{{ route('student.dashboard') }}" class="header-nav-btn">Dashboard</a>
                             </div>
                             <div class="option-item">
-                                <form action="{{ route($adminActive ? 'admin.logout' : 'student.logout') }}" method="POST" class="d-inline">
+                                <form action="{{ route('student.logout') }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="header-nav-btn header-nav-btn-outline">Sign out</button>
                                 </form>
                             </div>
                         @else
                             <div class="option-item">
-                                <a href="{{ route('login') }}" class="header-nav-btn">Sign in <i class="bi bi-person-fill ml-2"></i></a>
+                                <a href="{{ route('student.login') }}" class="header-nav-btn">Sign in <i class="bi bi-person-fill ml-2"></i></a>
                             </div>
                         @endif
                     </div>

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\LessonController;
 use App\Http\Controllers\Admin\QuizController;
 use App\Http\Controllers\Admin\AdminTeacherController;
 use App\Http\Controllers\Admin\AdminEnrollmentController;
+use App\Http\Controllers\Admin\AdminLeaveRequestController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest:admin')->group(function () {
@@ -20,6 +21,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [AdminDashboardController::class, 'index']);
         Route::get('/dashboard/api/stats', [AdminDashboardController::class, 'apiStats'])->name('dashboard.api.stats');
+        Route::get('/dashboard/api/leave-alerts', [AdminLeaveRequestController::class, 'alerts'])->name('dashboard.api.leave-alerts');
+
+        Route::post('/leave-requests/{leaveRequest}/approve', [AdminLeaveRequestController::class, 'approve'])->name('leave-requests.approve');
+        Route::post('/leave-requests/{leaveRequest}/reject', [AdminLeaveRequestController::class, 'reject'])->name('leave-requests.reject');
 
         Route::get('/students', [AdminStudentController::class, 'index'])->name('students.index');
         Route::get('/students/create', [AdminStudentController::class, 'create'])->name('students.create');
@@ -27,6 +32,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/students/{student}', [AdminStudentController::class, 'show'])->name('students.show');
         Route::get('/students/{student}/edit', [AdminStudentController::class, 'edit'])->name('students.edit');
         Route::put('/students/{student}', [AdminStudentController::class, 'update'])->name('students.update');
+        Route::put('/students/{student}/profile-records', [AdminStudentController::class, 'updateProfileRecords'])->name('students.profile-records.update');
 
         Route::get('/courses', [AdminCourseController::class, 'index'])->name('courses.index');
         Route::get('/courses/create', [AdminCourseController::class, 'create'])->name('courses.create');
@@ -46,6 +52,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('courses/{course}/quizzes/{quiz}', [QuizController::class, 'update'])->name('quizzes.update');
         Route::delete('courses/{course}/quizzes/{quiz}', [QuizController::class, 'destroy'])->name('quizzes.destroy');
         Route::get('courses/{course}/quizzes/{quiz}/attempts', [QuizController::class, 'attempts'])->name('quizzes.attempts');
+        Route::post('courses/{course}/quizzes/{quiz}/questions', [QuizController::class, 'storeQuestion'])->name('quizzes.questions.store');
+        Route::delete('courses/{course}/quizzes/{quiz}/questions/{question}', [QuizController::class, 'destroyQuestion'])->name('quizzes.questions.destroy');
 
         Route::get('/teachers', [AdminTeacherController::class, 'index'])->name('teachers.index');
         Route::get('/teachers/create', [AdminTeacherController::class, 'create'])->name('teachers.create');

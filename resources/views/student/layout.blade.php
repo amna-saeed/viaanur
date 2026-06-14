@@ -80,13 +80,13 @@
         </header>
 
         <main id="student-main-content" class="student-lms-content">
-            @if(session('success'))
+            @if(session('success') && ! request()->routeIs('student.courses.quizzes.take'))
                 <div class="alert alert-success alert-dismissible fade show student-lms-alert" role="alert">
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss"></button>
                 </div>
             @endif
-            @if(session('error'))
+            @if(session('error') && ! request()->routeIs('student.courses.quizzes.take'))
                 <div class="alert alert-danger alert-dismissible fade show student-lms-alert" role="alert">
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss"></button>

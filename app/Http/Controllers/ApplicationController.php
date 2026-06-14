@@ -19,7 +19,7 @@ class ApplicationController extends Controller
             'phone' => 'required|string|max:50',
             'course' => 'required|string|max:100',
             'message' => 'nullable|string|max:2000',
-        ] + StudentInformation::applicationRules());
+        ] + StudentInformation::applicationRules(), StudentInformation::validationMessages());
 
         $application = Application::create([
             'name' => $validated['name'],

@@ -33,9 +33,9 @@ Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.s
 // Auth
 Route::get('/login', function () {
     return redirect()->route('student.login');
-})->name('login')->middleware('guest:admin,student');
+})->name('login')->middleware('guest:student');
 
-Route::middleware('guest:admin,student')->group(function () {
+Route::middleware('guest:student')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
     // One-time admin creation without /register (enable ALLOW_WEB_ADMIN_SETUP=true in .env)

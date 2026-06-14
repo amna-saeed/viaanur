@@ -62,7 +62,7 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in($allowedRoles)],
-        ] + ($request->input('role') === User::ROLE_STUDENT ? StudentInformation::profileRules() : []));
+        ] + ($request->input('role') === User::ROLE_STUDENT ? StudentInformation::profileRules() : []), StudentInformation::validationMessages());
 
         $role = $validated['role'];
 
@@ -82,9 +82,13 @@ class AuthController extends Controller
         });
 
         if ($user->isStudent()) {
-            return redirect()
-                ->route('student.login')
-                ->with('success', 'Registration complete. Your student login credentials are ready. Please sign in to continue.');
+            $user = LmsAuth::applyPostAuthRoleRules($user);
+            Auth::guard('student')->login($user);
+            $request->session()->regenerate();
+            Auth::guard('student')->setUser($user);
+            LmsAuth::syncRoleToSession($request, $user);
+
+            return redirect()->route('student.dashboard');
         }
 
         $user = LmsAuth::applyPostAuthRoleRules($user);

@@ -48,7 +48,17 @@ class User extends Authenticatable
 
     public function studentProfile()
     {
-        return $this->hasOne(StudentProfile::class);
+        return $this->hasOne(StudentProfile::class, 'user_id');
+    }
+
+    public function attendanceRecords()
+    {
+        return $this->hasMany(AttendanceRecord::class);
+    }
+
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
     }
 
     public function taughtLmsClasses()

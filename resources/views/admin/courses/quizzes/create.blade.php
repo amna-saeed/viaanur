@@ -3,13 +3,13 @@
 @section('page_heading', 'Create New Quiz')
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">New Assessment/Quiz</h5>
-    </div>
-    <div class="card-body">
-        <form action="{{ route('admin.quizzes.store', $course) }}" method="POST">
-            @csrf
+<form action="{{ route('admin.quizzes.store', $course) }}" method="POST">
+    @csrf
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">New Assessment/Quiz</h5>
+        </div>
+        <div class="card-body">
             <div class="row">
                 <div class="col-md-12">
                     <label for="title" class="form-label">Quiz Title *</label>
@@ -68,12 +68,23 @@
                     @error('duration_minutes')<span class="invalid-feedback">{{ $message }}</span>@enderror
                 </div>
             </div>
-
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary">Create Quiz</button>
-                <a href="{{ route('admin.quizzes.index', $course) }}" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Quiz Questions *</h5>
+            <small class="text-muted">Add at least one question so students can attempt this quiz.</small>
+        </div>
+        <div class="card-body">
+            @error('questions')<div class="alert alert-danger">{{ $message }}</div>@enderror
+            @include('admin.courses.quizzes.partials.question-fields')
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary btn-lg">Create Quiz &amp; Questions</button>
+        <a href="{{ route('admin.quizzes.index', $course) }}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+    </div>
+</form>
 @endsection

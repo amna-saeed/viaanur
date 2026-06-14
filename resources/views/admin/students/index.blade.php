@@ -3,27 +3,46 @@
 @section('page_heading', 'Students')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h5 class="mb-0">All Students</h5>
-    <a href="{{ route('admin.students.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Add Student
+
+{{-- Page toolbar --}}
+<div class="stu-toolbar mb-4">
+    <div class="stu-toolbar__left">
+        <h2 class="stu-toolbar__title">All Students</h2>
+        <span class="stu-toolbar__count">
+            {{ $students->total() }} {{ Str::plural('student', $students->total()) }}
+        </span>
+    </div>
+    <a href="{{ route('admin.students.create') }}" class="btn btn-primary stu-add-btn">
+        <i class="bi bi-plus-lg me-1"></i> Add Student
     </a>
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-body">
-        <form method="GET" action="{{ route('admin.students.index') }}" class="row g-2 mb-4">
-            <div class="col-md-8">
-                <input type="text" name="q" class="form-control" placeholder="Search by name, email, or student ID..." value="{{ request('q') }}">
-            </div>
-            <div class="col-md-4">
-                <button type="submit" class="btn btn-primary me-2">Search</button>
-                <a href="{{ route('admin.students.index') }}" class="btn btn-outline-secondary">Clear</a>
-            </div>
-        </form>
+{{-- Main card --}}
+<div class="ad-panel">
 
+    {{-- Search bar --}}
+    <div class="stu-search-bar">
+        <form method="GET" action="{{ route('admin.students.index') }}" class="stu-search-form">
+            <div class="stu-search-input-wrap">
+                <i class="bi bi-search stu-search-icon" aria-hidden="true"></i>
+                <input type="text" name="q" class="form-control stu-search-input"
+                    placeholder="Search by name, email, or student ID…"
+                    value="{{ request('q') }}"
+                    autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-primary stu-search-btn">Search</button>
+            @if(request('q'))
+                <a href="{{ route('admin.students.index') }}" class="btn admin-lms-btn-outline stu-search-btn">
+                    <i class="bi bi-x-lg me-1"></i>Clear
+                </a>
+            @endif
+        </form>
+    </div>
+
+    {{-- Table --}}
+    <div class="ad-panel__body ad-panel__body--flush">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table admin-lms-table mb-0">
                 <thead>
                     <tr>
                         <th>Student ID</th>
@@ -31,7 +50,7 @@
                         <th>Email</th>
                         <th>Guardian</th>
                         <th>Joined</th>
-                        <th></th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,29 +58,56 @@
                     <tr>
                         <td>
                             @if($student->studentProfile)
-                                <span class="badge bg-light text-dark">{{ $student->studentProfile->student_id_number }}</span>
+                                <span class="stu-id-badge">{{ $student->studentProfile->student_id_number }}</span>
                             @else
-                                <span class="text-muted">Not completed</span>
+                                <span class="stu-incomplete">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Incomplete
+                                </span>
                             @endif
                         </td>
-                        <td>{{ $student->name }}</td>
-                        <td>{{ $student->email }}</td>
                         <td>
-                            @if($student->studentProfile)
+                            <div class="stu-name-cell">
+                                <span class="stu-avatar" aria-hidden="true">
+                                    {{ strtoupper(substr($student->name, 0, 1)) }}
+                                </span>
+                                <span class="stu-name">{{ $student->name }}</span>
+                            </div>
+                        </td>
+                        <td class="text-muted">{{ $student->email }}</td>
+                        <td>
+                            @if($student->studentProfile && $student->studentProfile->guardian_name)
                                 {{ $student->studentProfile->guardian_name }}
                             @else
-                                <span class="text-muted">-</span>
+                                <span class="text-muted">—</span>
                             @endif
                         </td>
-                        <td>{{ $student->created_at->format('M j, Y') }}</td>
-                        <td>
-                            <a href="{{ route('admin.students.show', $student) }}" class="btn btn-sm btn-outline-primary">View</a>
-                            <a href="{{ route('admin.students.edit', $student) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <td class="text-muted">{{ $student->created_at->format('M j, Y') }}</td>
+                        <td class="text-end">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a href="{{ route('admin.students.show', $student) }}"
+                                    class="btn btn-sm admin-lms-btn-outline stu-row-btn">
+                                    <i class="bi bi-eye me-1"></i>View
+                                </a>
+                                <a href="{{ route('admin.students.edit', $student) }}"
+                                    class="btn btn-sm stu-edit-btn">
+                                    <i class="bi bi-pencil me-1"></i>Edit
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-muted text-center py-4">No students found.</td>
+                        <td colspan="6">
+                            <div class="ad-empty">
+                                <i class="bi bi-people d-block mb-2"></i>
+                                @if(request('q'))
+                                    No students found for <strong>"{{ request('q') }}"</strong>.
+                                    <a href="{{ route('admin.students.index') }}" class="d-block mt-1 small">Clear search</a>
+                                @else
+                                    No students have registered yet.
+                                @endif
+                            </div>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -69,10 +115,187 @@
         </div>
 
         @if($students->hasPages())
-            <div class="d-flex justify-content-center mt-3">
+            <div class="stu-pagination">
                 {{ $students->links() }}
             </div>
         @endif
     </div>
+
 </div>
+
+<style>
+/* ── Toolbar ── */
+.stu-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.stu-toolbar__left {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+.stu-toolbar__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+.stu-toolbar__count {
+    background: #eeedf8;
+    color: #322f89;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: .25rem .65rem;
+    border-radius: 999px;
+    border: 1px solid #d1d0f0;
+}
+.stu-add-btn {
+    font-size: .82rem !important;
+    border-radius: 9px !important;
+    padding: .55rem 1.1rem !important;
+    font-weight: 600 !important;
+}
+
+/* ── Search bar ── */
+.stu-search-bar {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f0f0f8;
+    background: #fafbff;
+}
+.stu-search-form {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+}
+.stu-search-input-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+}
+.stu-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: .9rem;
+    pointer-events: none;
+}
+.stu-search-input {
+    padding-left: 34px !important;
+    height: 40px;
+    border-color: #e4e4f0;
+    border-radius: 9px !important;
+    font-size: .85rem;
+    transition: border-color .2s, box-shadow .2s;
+}
+.stu-search-input:focus {
+    border-color: #9c9ac2;
+    box-shadow: 0 0 0 3px rgba(50,47,137,.1);
+}
+.stu-search-btn {
+    height: 40px;
+    font-size: .82rem !important;
+    border-radius: 9px !important;
+    font-weight: 600 !important;
+    padding: 0 1rem !important;
+    white-space: nowrap;
+}
+
+/* ── Name cell ── */
+.stu-name-cell {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+}
+.stu-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #322f89, #b2cd34);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.stu-name {
+    font-weight: 500;
+    color: #0f172a;
+}
+
+/* ── Badges ── */
+.stu-id-badge {
+    background: #eeedf8;
+    color: #322f89;
+    border: 1px solid #d1d0f0;
+    padding: .2rem .55rem;
+    border-radius: 6px;
+    font-size: .76rem;
+    font-weight: 600;
+    font-family: ui-monospace, monospace;
+}
+.stu-incomplete {
+    font-size: .78rem;
+    color: #d97706;
+    font-weight: 500;
+}
+
+/* ── Row buttons ── */
+.stu-row-btn {
+    font-size: .75rem !important;
+    padding: .28rem .65rem !important;
+    border-radius: 7px !important;
+}
+.stu-edit-btn {
+    font-size: .75rem;
+    padding: .28rem .65rem;
+    border-radius: 7px;
+    background: #f8f9ff;
+    color: #475569;
+    border: 1px solid #e4e4f0;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background .15s, border-color .15s;
+}
+.stu-edit-btn:hover {
+    background: #eeedf8;
+    border-color: #c5c4e8;
+    color: #322f89;
+}
+
+/* ── Empty state ── */
+.ad-empty {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: #94a3b8;
+    font-size: .875rem;
+}
+.ad-empty i {
+    font-size: 2.2rem;
+    opacity: .35;
+}
+
+/* ── Pagination ── */
+.stu-pagination {
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid #f0f0f8;
+}
+
+@media (max-width: 575.98px) {
+    .stu-search-form { flex-direction: column; align-items: stretch; }
+    .stu-search-input-wrap { min-width: unset; }
+    .stu-search-btn { width: 100%; justify-content: center; }
+}
+</style>
 @endsection

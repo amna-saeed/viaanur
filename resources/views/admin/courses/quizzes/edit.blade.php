@@ -77,4 +77,90 @@
         </form>
     </div>
 </div>
+
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Quiz Questions ({{ $quiz->questions->count() }})</h5>
+    </div>
+    <div class="card-body">
+        @if($quiz->questions->isEmpty())
+            <p class="text-muted mb-4">No questions yet. Add at least one question so students can attempt this quiz.</p>
+        @else
+            <div class="table-responsive mb-4">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Question</th>
+                            <th>Marks</th>
+                            <th>Correct</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($quiz->questions as $question)
+                            <tr>
+                                <td>{{ $question->order }}</td>
+                                <td>{{ \Illuminate\Support\Str::limit($question->question_text, 80) }}</td>
+                                <td>{{ $question->marks }}</td>
+                                <td><span class="badge bg-success text-uppercase">{{ $question->correct_option }}</span></td>
+                                <td>
+                                    <form action="{{ route('admin.quizzes.questions.destroy', [$course, $quiz, $question]) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove this question?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+
+        <h6 class="mb-3">Add question</h6>
+        <form action="{{ route('admin.quizzes.questions.store', [$course, $quiz]) }}" method="POST">
+            @csrf
+            <div class="mb-3">
+                <label for="question_text" class="form-label">Question *</label>
+                <textarea class="form-control" id="question_text" name="question_text" rows="2" required>{{ old('question_text') }}</textarea>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="option_a" class="form-label">Option A *</label>
+                    <input type="text" class="form-control" id="option_a" name="option_a" required value="{{ old('option_a') }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="option_b" class="form-label">Option B *</label>
+                    <input type="text" class="form-control" id="option_b" name="option_b" required value="{{ old('option_b') }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="option_c" class="form-label">Option C</label>
+                    <input type="text" class="form-control" id="option_c" name="option_c" value="{{ old('option_c') }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="option_d" class="form-label">Option D</label>
+                    <input type="text" class="form-control" id="option_d" name="option_d" value="{{ old('option_d') }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="correct_option" class="form-label">Correct option *</label>
+                    <select class="form-control" id="correct_option" name="correct_option" required>
+                        @foreach(['a','b','c','d'] as $opt)
+                            <option value="{{ $opt }}" {{ old('correct_option') === $opt ? 'selected' : '' }}>{{ strtoupper($opt) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="marks" class="form-label">Marks *</label>
+                    <input type="number" class="form-control" id="marks" name="marks" min="1" value="{{ old('marks', 1) }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="order" class="form-label">Order</label>
+                    <input type="number" class="form-control" id="order" name="order" min="0" value="{{ old('order', $quiz->questions->count()) }}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Add question</button>
+        </form>
+    </div>
+</div>
 @endsection

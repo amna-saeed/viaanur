@@ -18,12 +18,14 @@ class QuizAttempt extends Model
         'is_passed',
         'started_at',
         'submitted_at',
+        'answers',
     ];
 
     protected $casts = [
         'is_passed' => 'boolean',
         'started_at' => 'datetime',
         'submitted_at' => 'datetime',
+        'answers' => 'array',
     ];
 
     public function quiz(): BelongsTo

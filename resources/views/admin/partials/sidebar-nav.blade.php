@@ -1,6 +1,9 @@
 <a class="admin-lms-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
     <span class="admin-lms-nav-link__icon" aria-hidden="true"><i class="bi bi-grid-1x2-fill"></i></span>
     <span class="admin-lms-nav-link__label">Dashboard</span>
+    @if(!empty($pendingLeaveCount))
+        <span class="admin-lms-nav-link__badge" aria-label="{{ $pendingLeaveCount }} pending leave requests">{{ $pendingLeaveCount }}</span>
+    @endif
 </a>
 <a class="admin-lms-nav-link {{ request()->routeIs('admin.students*') ? 'active' : '' }}" href="{{ route('admin.students.index') }}">
     <span class="admin-lms-nav-link__icon" aria-hidden="true"><i class="bi bi-people-fill"></i></span>

@@ -25,6 +25,7 @@
                     <thead>
                         <tr>
                             <th>Quiz Title</th>
+                            <th>Questions</th>
                             <th>Total Marks</th>
                             <th>Passing Marks</th>
                             <th>Attempts</th>
@@ -39,6 +40,13 @@
                                 <strong>{{ $quiz->title }}</strong>
                                 @if($quiz->description)
                                     <br><small class="text-muted">{{ Str::limit($quiz->description, 50) }}</small>
+                                @endif
+                            </td>
+                            <td>
+                                @if(($quiz->questions_count ?? 0) === 0)
+                                    <span class="badge bg-warning text-dark">0 — add questions</span>
+                                @else
+                                    <span class="badge bg-success">{{ $quiz->questions_count }}</span>
                                 @endif
                             </td>
                             <td>{{ $quiz->total_marks }}</td>
