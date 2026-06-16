@@ -37,12 +37,17 @@ class AttendanceRecord extends Model
 
     public function statusLabel(): string
     {
-        return match ($this->status) {
-            self::STATUS_PRESENT => 'Present',
-            self::STATUS_ABSENT => 'Absent',
-            self::STATUS_LATE => 'Late',
-            self::STATUS_EXCUSED => 'Excused',
-            default => ucfirst($this->status),
-        };
+        switch ($this->status) {
+            case self::STATUS_PRESENT:
+                return 'Present';
+            case self::STATUS_ABSENT:
+                return 'Absent';
+            case self::STATUS_LATE:
+                return 'Late';
+            case self::STATUS_EXCUSED:
+                return 'Excused';
+            default:
+                return ucfirst($this->status);
+        }
     }
 }

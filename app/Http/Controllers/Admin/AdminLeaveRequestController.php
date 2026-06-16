@@ -28,7 +28,7 @@ class AdminLeaveRequestController extends Controller
 
         return redirect()
             ->route('admin.dashboard')
-            ->with('success', 'Leave request for '.$leave->user?->name.' has been approved.');
+            ->with('success', 'Leave request for '.optional($leave->user)->name.' has been approved.');
     }
 
     public function reject(Request $request, LeaveRequest $leaveRequest, LeaveRequestService $leaveService): RedirectResponse
@@ -47,7 +47,7 @@ class AdminLeaveRequestController extends Controller
 
         return redirect()
             ->route('admin.dashboard')
-            ->with('success', 'Leave request for '.$leave->user?->name.' has been rejected.');
+            ->with('success', 'Leave request for '.optional($leave->user)->name.' has been rejected.');
     }
 
     public function alerts(LeaveRequestService $leaveService): JsonResponse

@@ -30,13 +30,19 @@ class ApplicationConfirmation extends Mailable
 
     public static function courseLabelFor(string $course): string
     {
-        return match ($course) {
-            'social-media' => 'Introduction to Social Media Concepts',
-            'gcse-maths' => 'GCSE Level Mathematics',
-            'islamic-studies' => 'Islamic Studies',
-            'esol' => 'Introduction to ESOL',
-            'english' => 'Introduction to English',
-            default => $course,
-        };
+        switch ($course) {
+            case 'social-media':
+                return 'Introduction to Social Media Concepts';
+            case 'gcse-maths':
+                return 'GCSE Level Mathematics';
+            case 'islamic-studies':
+                return 'Islamic Studies';
+            case 'esol':
+                return 'Introduction to ESOL';
+            case 'english':
+                return 'Introduction to English';
+            default:
+                return $course;
+        }
     }
 }

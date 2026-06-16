@@ -53,7 +53,7 @@ class StudentCourseController extends Controller
         return view('student.courses.lesson', compact('course', 'lesson'));
     }
 
-    public function showQuiz(Course $course, Quiz $quiz): View|RedirectResponse
+    public function showQuiz(Course $course, Quiz $quiz)
     {
         $user = auth()->user();
         $this->ensureEnrolled($user->id, $course);
@@ -121,7 +121,7 @@ class StudentCourseController extends Controller
         return redirect()->route('student.courses.quizzes.take', [$course, $quiz, $attempt]);
     }
 
-    public function takeQuiz(Course $course, Quiz $quiz, QuizAttempt $attempt): View|RedirectResponse
+    public function takeQuiz(Course $course, Quiz $quiz, QuizAttempt $attempt)
     {
         $user = auth()->user();
         $this->ensureEnrolled($user->id, $course);
@@ -199,7 +199,7 @@ class StudentCourseController extends Controller
                 : 'Quiz submitted successfully.');
     }
 
-    public function quizResult(Course $course, Quiz $quiz, QuizAttempt $attempt): View|RedirectResponse
+    public function quizResult(Course $course, Quiz $quiz, QuizAttempt $attempt)
     {
         $user = auth()->user();
         $this->ensureEnrolled($user->id, $course);

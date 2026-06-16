@@ -144,11 +144,15 @@
                             <tbody>
                                 @foreach($attendance['leave_requests'] as $leave)
                                     @php
-                                        $sc = match($leave->status) {
-                                            'approved' => 'att-status att-status--green',
-                                            'rejected' => 'att-status att-status--red',
-                                            default    => 'att-status att-status--amber',
-                                        };
+                                        $sc = 'att-status att-status--amber';
+                                        switch ($leave->status) {
+                                            case 'approved':
+                                                $sc = 'att-status att-status--green';
+                                                break;
+                                            case 'rejected':
+                                                $sc = 'att-status att-status--red';
+                                                break;
+                                        }
                                     @endphp
                                     <tr>
                                         <td class="text-nowrap">
@@ -244,13 +248,21 @@
                     <tbody>
                         @foreach($attendance['records'] as $record)
                             @php
-                                $sc = match($record->status) {
-                                    'present' => 'att-status att-status--green',
-                                    'absent'  => 'att-status att-status--red',
-                                    'late'    => 'att-status att-status--amber',
-                                    'excused' => 'att-status att-status--blue',
-                                    default   => 'att-status',
-                                };
+                                $sc = 'att-status';
+                                switch ($record->status) {
+                                    case 'present':
+                                        $sc = 'att-status att-status--green';
+                                        break;
+                                    case 'absent':
+                                        $sc = 'att-status att-status--red';
+                                        break;
+                                    case 'late':
+                                        $sc = 'att-status att-status--amber';
+                                        break;
+                                    case 'excused':
+                                        $sc = 'att-status att-status--blue';
+                                        break;
+                                }
                             @endphp
                             <tr>
                                 <td class="fw-semibold">{{ $record->record_date->format('M j, Y') }}</td>

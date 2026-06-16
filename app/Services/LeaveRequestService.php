@@ -119,8 +119,8 @@ class LeaveRequestService
 
             return [
                 'id' => $leave->id,
-                'student_name' => $leave->user?->name ?? 'Student',
-                'student_email' => $leave->user?->email,
+                'student_name' => optional($leave->user)->name ?? 'Student',
+                'student_email' => optional($leave->user)->email,
                 'start_date' => $leave->start_date->format('M j, Y'),
                 'end_date' => $leave->end_date->format('M j, Y'),
                 'days' => $leave->dayCount(),

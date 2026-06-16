@@ -34,7 +34,7 @@
                     <span class="student-dash-highlight-item__badge student-dash-highlight-item__badge--quiz">New quiz</span>
                     <div class="student-dash-highlight-item__body">
                         <strong class="student-dash-highlight-item__title">{{ $quiz->title }}</strong>
-                        <span class="student-dash-highlight-item__meta">{{ $quiz->course?->title }}</span>
+                        <span class="student-dash-highlight-item__meta">{{ optional($quiz->course)->title }}</span>
                     </div>
                     @if($quiz->course)
                         <a href="{{ route('student.courses.quizzes.show', [$quiz->course, $quiz]) }}" class="btn btn-sm btn-light student-dash-highlight-item__btn ms-auto">

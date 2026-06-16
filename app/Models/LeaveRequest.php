@@ -32,12 +32,16 @@ class LeaveRequest extends Model
 
     public function statusLabel(): string
     {
-        return match ($this->status) {
-            self::STATUS_PENDING => 'Pending',
-            self::STATUS_APPROVED => 'Approved',
-            self::STATUS_REJECTED => 'Rejected',
-            default => ucfirst($this->status),
-        };
+        switch ($this->status) {
+            case self::STATUS_PENDING:
+                return 'Pending';
+            case self::STATUS_APPROVED:
+                return 'Approved';
+            case self::STATUS_REJECTED:
+                return 'Rejected';
+            default:
+                return ucfirst($this->status);
+        }
     }
 
     public function dayCount(): int

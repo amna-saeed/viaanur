@@ -214,7 +214,7 @@
                                 <tbody>
                                     @foreach($recentEnrollmentActivity as $enrollment)
                                         <tr>
-                                            <td class="fw-semibold">{{ $enrollment->course?->title ?? 'Course removed' }}</td>
+                                            <td class="fw-semibold">{{ optional($enrollment->course)->title ?? 'Course removed' }}</td>
                                             <td class="text-muted">{{ $enrollment->created_at->format('M j, Y') }}</td>
                                         </tr>
                                     @endforeach
@@ -250,8 +250,8 @@
                                 <tbody>
                                     @foreach($recentQuizAttempts as $attempt)
                                         <tr>
-                                            <td class="fw-semibold">{{ $attempt->quiz?->title ?? 'Quiz removed' }}</td>
-                                            <td class="text-muted">{{ $attempt->quiz?->course?->title ?? '—' }}</td>
+                                            <td class="fw-semibold">{{ optional($attempt->quiz)->title ?? 'Quiz removed' }}</td>
+                                            <td class="text-muted">{{ optional(optional($attempt->quiz)->course)->title ?? '—' }}</td>
                                             <td>
                                                 @if($attempt->percentage !== null)
                                                     <span class="badge rounded-pill {{ $attempt->is_passed ? 'student-dash-badge student-dash-badge--success' : 'student-dash-badge student-dash-badge--muted' }}">
@@ -261,7 +261,7 @@
                                                     <span class="text-muted">—</span>
                                                 @endif
                                             </td>
-                                            <td class="text-muted">{{ $attempt->submitted_at?->format('M j, Y') }}</td>
+                                            <td class="text-muted">{{ optional($attempt->submitted_at)->format('M j, Y') }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

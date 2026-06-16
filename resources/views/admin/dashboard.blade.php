@@ -580,8 +580,8 @@
                             @foreach($pendingLeaveRequests as $leave)
                                 <tr>
                                     <td>
-                                        <span class="fw-500 d-block">{{ $leave->user?->name ?? 'Student' }}</span>
-                                        <span class="small text-muted">{{ $leave->user?->email }}</span>
+                                        <span class="fw-500 d-block">{{ optional($leave->user)->name ?? 'Student' }}</span>
+                                        <span class="small text-muted">{{ optional($leave->user)->email }}</span>
                                     </td>
                                     <td class="text-nowrap">
                                         {{ $leave->start_date->format('M j, Y') }}
