@@ -32,7 +32,7 @@ class OutboundMail
      * @param  list<string>  $bcc
      * @return array{sent: bool, error: ?string, mailer: ?string, inbox_delivery: bool}
      */
-    public static function send(Mailable $mailable, string|array $to, array $bcc = []): array
+    public static function send(Mailable $mailable, $to, array $bcc = []): array
     {
         $recipients = is_array($to) ? $to : [$to];
         $primaryTo = $recipients[0];
@@ -71,7 +71,7 @@ class OutboundMail
             return true;
         }
 
-        return $mailer !== null && str_contains($mailer, 'mailout');
+        return $mailer !== null && strpos($mailer, 'mailout') !== false;
     }
 
     public static function isLocalDevelopment(): bool
@@ -127,7 +127,7 @@ class OutboundMail
         if ($ok) {
             Log::info('Outbound email sent via PHP mail()', [
                 'to' => $to,
-                'mailable' => $mailable::class,
+                'mailable' => get_class($mailable),
             ]);
 
             return ['sent' => true, 'error' => null, 'mailer' => 'onecom_php_mail'];
@@ -151,7 +151,7 @@ class OutboundMail
             $pending->send($mailable);
             Log::info('Outbound email sent via sendmail', [
                 'to' => $recipients,
-                'mailable' => $mailable::class,
+                'mailable' => get_class($mailable),
             ]);
 
             return ['sent' => true, 'error' => null, 'mailer' => 'sendmail'];
@@ -190,13 +190,13 @@ class OutboundMail
                 Log::info('Outbound email accepted by SMTP', [
                     'to' => $recipients,
                     'mailer' => $mailerName,
-                    'mailable' => $mailable::class,
+                    'mailable' => get_class($mailable),
                 ]);
 
                 return ['sent' => true, 'error' => null, 'mailer' => $mailerName];
             } catch (\Throwable $e) {
                 Log::warning('Outbound email failed: ' . $mailerName, [
-                    'mailable' => $mailable::class,
+                    'mailable' => get_class($mailable),
                     'message' => $e->getMessage(),
                 ]);
                 $lastError = $e->getMessage();

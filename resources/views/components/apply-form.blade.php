@@ -18,6 +18,10 @@
                         <h3 class="apply-form-title">Apply Now</h3>
                         <p class="apply-form-desc">Fill in your details and we’ll get back to you.</p>
                     </div>
+                    <div class="apply-form-error" id="applyFormError" aria-hidden="true">
+                        <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
+                        <p id="applyFormErrorText"></p>
+                    </div>
                     <form class="apply-form" method="POST" action="{{ route('application.store') }}" id="applyForm">
                     @csrf
                     <div class="row">
@@ -339,6 +343,31 @@
     transform: translateY(-1px);
 }
 
+.apply-form-error {
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border-radius: 6px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.apply-form-error.is-visible {
+    display: flex;
+}
+.apply-form-error i {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.apply-form-error p {
+    margin: 0;
+}
+
 /* Success message - submit ke baad */
 .apply-form-success {
     display: none;
@@ -381,6 +410,10 @@
     var modal = document.getElementById('applyFormModal');
     var formContent = document.getElementById('applyFormContent');
     var successBlock = document.getElementById('applyFormSuccess');
+    var errorBlock = document.getElementById('applyFormError');
+    var errorText = document.getElementById('applyFormErrorText');
+    var successText = successBlock ? successBlock.querySelector('.apply-form-success-text') : null;
+    var defaultSuccessText = successText ? successText.textContent : '';
     var form = document.getElementById('applyForm');
     if (!modal || !form) return;
     var closeBtns = modal.querySelectorAll('.js-apply-form-close');
@@ -407,16 +440,46 @@
         modal.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
     }
+    function hideError() {
+        if (errorBlock) {
+            errorBlock.classList.remove('is-visible');
+            errorBlock.setAttribute('aria-hidden', 'true');
+        }
+        if (errorText) errorText.textContent = '';
+    }
+    function showError(message) {
+        if (!errorBlock || !errorText) return;
+        errorText.textContent = message || 'Something went wrong. Please try again.';
+        errorBlock.classList.add('is-visible');
+        errorBlock.setAttribute('aria-hidden', 'false');
+        errorBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function responseMessage(data) {
+        if (!data) return 'Something went wrong. Please try again.';
+        if (data.errors) {
+            var keys = Object.keys(data.errors);
+            if (keys.length && data.errors[keys[0]] && data.errors[keys[0]][0]) {
+                return data.errors[keys[0]][0];
+            }
+        }
+        return data.message || 'Something went wrong. Please try again.';
+    }
     function resetFormView() {
+        hideError();
         if (formContent) formContent.classList.remove('is-hidden');
         if (successBlock) {
             successBlock.classList.remove('is-visible');
             successBlock.setAttribute('aria-hidden', 'true');
         }
+        if (successText && defaultSuccessText) {
+            successText.textContent = defaultSuccessText;
+        }
     }
-    function showSuccess() {
+    function showSuccess(note) {
+        hideError();
         if (formContent) formContent.classList.add('is-hidden');
         if (successBlock) {
+            if (successText && note) successText.textContent = note;
             successBlock.classList.add('is-visible');
             successBlock.setAttribute('aria-hidden', 'false');
         }
@@ -435,25 +498,28 @@
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
             }
-
         })
-        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(r) {
+            return r.json().then(function(d) {
+                return { ok: r.ok, data: d };
+            }).catch(function() {
+                return { ok: false, data: { message: 'Something went wrong. Please try again.' } };
+            });
+        })
         .then(function(result) {
             if (result.ok && result.data.success) {
-                showSuccess();
-                form.reset();
-                if (result.data.mail_sent === false && result.data.mail_error) {
-                    console.warn('Mail:', result.data.mail_error);
-                    alert('Application saved.\n\nEmail could not be sent:\n' + result.data.mail_error);
-                } else if (result.data.confirmation_sent === false && result.data.mail_error) {
-                    console.warn('Confirmation mail:', result.data.mail_error);
+                var note = result.data.message || defaultSuccessText;
+                if (result.data.mail_sent === false) {
+                    note = 'Your enrollment request has been saved. Email notification could not be sent, but our team will still review your application.';
                 }
+                showSuccess(note);
+                form.reset();
             } else {
-                alert(result.data.message || 'Something went wrong. Please try again.');
+                showError(responseMessage(result.data));
             }
         })
         .catch(function() {
-            alert('Something went wrong. Please try again.');
+            showError('Something went wrong. Please try again.');
         })
         .finally(function() {
             if (btn) { btn.disabled = false; btn.textContent = origText; }
