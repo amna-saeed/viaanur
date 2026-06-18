@@ -196,7 +196,7 @@ class EnrollmentRequestService
 
     public function courseTitleFor(Application $application): string
     {
-        return $application->courseRelation?->title
+        return optional($application->courseRelation)->title
             ?? CourseApplicationMapper::label($application->course);
     }
 
@@ -301,7 +301,7 @@ class EnrollmentRequestService
         $student->studentProfile()->create(
             StudentInformation::profileDataFrom([
                 'student_id_number' => $application->student_id_number,
-                'date_of_birth' => $application->date_of_birth?->format('Y-m-d'),
+                'date_of_birth' => optional($application->date_of_birth)->format('Y-m-d'),
                 'gender' => $application->gender,
                 'school_name' => $application->school_name,
                 'home_address' => $application->home_address,
@@ -318,10 +318,10 @@ class EnrollmentRequestService
     {
         return [
             'alert_id' => 'enrollment-'.$enrollment->id,
-            'student_name' => $enrollment->user?->name ?? 'Student',
-            'student_email' => $enrollment->user?->email,
-            'course_title' => $enrollment->course?->title ?? 'Course',
-            'created_at' => $enrollment->created_at?->toIso8601String(),
+            'student_name' => optional($enrollment->user)->name ?? 'Student',
+            'student_email' => optional($enrollment->user)->email,
+            'course_title' => optional($enrollment->course)->title ?? 'Course',
+            'created_at' => optional($enrollment->created_at)->toIso8601String(),
             'sort_at' => $enrollment->created_at,
             'url' => route('admin.enrollments.show', $enrollment),
         ];
@@ -334,7 +334,7 @@ class EnrollmentRequestService
             'student_name' => $application->name,
             'student_email' => $application->email,
             'course_title' => $this->courseTitleFor($application),
-            'created_at' => $application->created_at?->toIso8601String(),
+            'created_at' => optional($application->created_at)->toIso8601String(),
             'sort_at' => $application->created_at,
             'url' => route('admin.applications.show', $application),
         ];

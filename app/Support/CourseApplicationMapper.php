@@ -106,6 +106,6 @@ class CourseApplicationMapper
 
     public static function resolveCourseId(?string $courseKey): ?int
     {
-        return self::resolveCourse($courseKey)?->id;
+        return optional(self::resolveCourse($courseKey))->id;
     }
 }
