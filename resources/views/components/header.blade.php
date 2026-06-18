@@ -17,6 +17,14 @@
 <!-- End Preloader -->
 
 <!-- Start Navbar Area -->
+@php
+    $headerSignInUrl = route('student.login');
+    if (auth('admin')->check()) {
+        $headerSignInUrl = route('admin.dashboard');
+    } elseif (auth('student')->check()) {
+        $headerSignInUrl = route('student.dashboard');
+    }
+@endphp
 <div class="page-top-tagline">
     <div class="marquee">
         <span>Build Your Future with Smart Learning</span>
@@ -38,61 +46,39 @@
 
     <div class="desktop-nav">
         <div class="container">
-            <nav class="navbar navbar-expand-md navbar-light">
-                <a class="navbar-brand me-0" href="/">
-                    <img src="{{ asset('assets/images/banner/logo-new.webp') }}" alt="logo" class="header-logo" >
+            <nav class="navbar navbar-expand-lg navbar-light header-nav-shell">
+                <a class="navbar-brand header-nav-brand" href="/">
+                    <img src="{{ asset('assets/images/banner/logo-new.webp') }}" alt="logo" class="header-logo">
                 </a>
-                <div class="collapse navbar-collapse mean-menu" id="navbarSupportedContent">
-                    <ul class="navbar-nav mx-auto">
+
+                <div class="header-nav-menu-wrap">
+                    <ul class="navbar-nav header-nav-menu">
                         <li class="nav-item">
-                            <a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
-                                Home
-                            </a>
+                            <a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
                         </li>
-                        <!-- <li class="nav-item">
-                            <a href="{{ route('courses') }}" class="nav-link {{ request()->routeIs('courses') ? 'active' : '' }}">
-                                Courses
-                            </a>
-                        </li> -->
-                       <li class="nav-item">
+                        <li class="nav-item">
                             <a href="{{ url('/') }}#courses-move" class="nav-link menu-link">
                                 Courses
                                 <i class="fas fa-arrow-right"></i>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('teams') }}" class="nav-link {{ request()->routeIs('teams') ? 'active' : '' }}">
-                                Our Team
-                            </a>
+                            <a href="{{ route('teams') }}" class="nav-link {{ request()->routeIs('teams') ? 'active' : '' }}">Our Team</a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('about-us') }}" class="nav-link {{ request()->routeIs('about-us') ? 'active' : '' }}">
-                                About Us
-                            </a>
+                            <a href="{{ route('about-us') }}" class="nav-link {{ request()->routeIs('about-us') ? 'active' : '' }}">About Us</a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('contact-us') }}" class="nav-link {{ request()->routeIs('contact-us') ? 'active' : '' }}">
-                                Contact Us
-                            </a>
+                            <a href="{{ route('contact-us') }}" class="nav-link {{ request()->routeIs('contact-us') ? 'active' : '' }}">Contact Us</a>
                         </li>
                     </ul>
-                    <div class="others-option position-relative d-flex align-items-center gap-2">
-                        @if (auth('student')->check())
-                            <div class="option-item">
-                                <a href="{{ route('student.dashboard') }}" class="header-nav-btn">Dashboard</a>
-                            </div>
-                            <div class="option-item">
-                                <form action="{{ route('student.logout') }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="header-nav-btn header-nav-btn-outline">Sign out</button>
-                                </form>
-                            </div>
-                        @else
-                            <div class="option-item">
-                                <a href="{{ route('student.login') }}" class="header-nav-btn"> <i class="bi bi-person-fill ml-2"></i>Sign in</a>
-                            </div>
-                        @endif
-                    </div>
+                </div>
+
+                <div class="header-nav-actions">
+                    <a href="{{ $headerSignInUrl }}" class="header-nav-btn">
+                        <i class="bi bi-person-fill" aria-hidden="true"></i>
+                        Sign in
+                    </a>
                 </div>
             </nav>
         </div>
@@ -110,22 +96,13 @@
             
             <div class="container">
                 <div class="option-inner">
-                    <div class="others-options justify-content-center d-flex align-items-center gap-2 flex-wrap">
-                        @if (auth('student')->check())
-                            <div class="option-item">
-                                <a href="{{ route('student.dashboard') }}" class="header-nav-btn">Dashboard</a>
-                            </div>
-                            <div class="option-item">
-                                <form action="{{ route('student.logout') }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="header-nav-btn header-nav-btn-outline">Sign out</button>
-                                </form>
-                            </div>
-                        @else
-                            <div class="option-item">
-                                <a href="{{ route('student.login') }}" class="header-nav-btn">Sign in <i class="bi bi-person-fill ml-2"></i></a>
-                            </div>
-                        @endif
+                    <div class="others-options justify-content-center d-flex align-items-center">
+                        <div class="option-item">
+                            <a href="{{ $headerSignInUrl }}" class="header-nav-btn">
+                                <i class="bi bi-person-fill" aria-hidden="true"></i>
+                                Sign in
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -201,6 +178,55 @@
     min-height: var(--navbar-height);
 }
 
+.header-nav-shell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    width: 100%;
+    padding: 0;
+}
+
+.header-nav-brand {
+    flex: 0 0 auto;
+    margin-right: 0;
+    padding: 0;
+}
+
+.header-nav-menu-wrap {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+}
+
+.header-nav-menu {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+}
+
+.header-nav-menu .nav-item {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.header-nav-menu .nav-link {
+    padding: 0.5rem 0.85rem !important;
+    white-space: nowrap;
+}
+
+.header-nav-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
 .navbar-area .navbar-brand img.header-logo {
     max-height: 48px;
     width: auto;
@@ -265,6 +291,14 @@ form .header-nav-btn-outline {
 }
 
 @media (max-width: 991px) {
+    .header-nav-menu-wrap {
+        display: none;
+    }
+
+    .header-nav-shell {
+        justify-content: space-between;
+    }
+
     .page-top-tagline {
         padding: 0.45rem 0;
     }

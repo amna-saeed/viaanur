@@ -105,7 +105,7 @@
                                 <td>{{ $question->marks }}</td>
                                 <td><span class="badge bg-success text-uppercase">{{ $question->correct_option }}</span></td>
                                 <td>
-                                    <form action="{{ route('admin.quizzes.questions.destroy', [$course, $quiz, $question]) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove this question?');">
+                                    <form action="{{ route('admin.quizzes.questions.destroy', [$course, $quiz, $question]) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>

@@ -725,7 +725,7 @@
                                         <img src="{{asset('assets/images/banner/user-icon2.png')}}" class="users-course" alt="icon">
                                     </div>
                                 </div>
-                                <div class="button blick-100 enroll-apply-btn js-apply-form-open" data-apply-course="social-media">
+                                <div class="button blick-100 enroll-apply-btn js-apply-form-open" data-apply-course="social-media-content-creation">
                                     <a class="bliink-inner1" href="#" role="button">ENROLL NOW</a>
                                 </div>
                             </div>

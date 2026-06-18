@@ -1,4 +1,8 @@
 {{-- Trigger: isi button ya kisi bhi element par class "js-apply-form-open" laga do, click par form open hoga --}}
+@php
+    use App\Support\CourseCatalog;
+    $applyCourseGroups = CourseCatalog::applyFormGroups();
+@endphp
 
 {{-- Modal overlay + form --}}
 <div id="applyFormModal" class="apply-form-modal" aria-hidden="true">
@@ -42,11 +46,13 @@
                                 <label for="apply_course" class="form-label">Course <span class="text-danger">*</span></label>
                                 <select name="course" id="apply_course" class="form-control form-select" required>
                                     <option value="">Select a course</option>
-                                    <option value="social-media">Introduction to Social Media Concepts</option>
-                                    <option value="gcse-maths">GCSE Level Mathematics</option>
-                                    <option value="islamic-studies">Islamic Studies</option>
-                                    <option value="esol">Introduction to ESOL</option>
-                                    <option value="english">Introduction to English</option>
+                                    @foreach($applyCourseGroups as $group)
+                                        <optgroup label="{{ $group['label'] }}">
+                                            @foreach($group['options'] as $option)
+                                                <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -117,7 +123,7 @@
             <div class="apply-form-success" id="applyFormSuccess" aria-hidden="true">
                 <div class="apply-form-success-icon"><i class="bi bi-check-circle-fill"></i></div>
                 <h3 class="apply-form-success-title">Request Submitted</h3>
-                <p class="apply-form-success-text">Your request has been submitted successfully. We will reach out to you soon.</p>
+                <p class="apply-form-success-text">Your enrollment request has been submitted successfully. You will get course access after admin approval.</p>
             </div>
         </div>
     </div>

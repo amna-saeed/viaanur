@@ -137,8 +137,14 @@
             <div class="ad-panel__body">
                 <div class="enr-stat-row">
                     <span class="enr-stat-row__label">Status</span>
-                    <span class="enr-status-badge enr-status-badge--sm">
-                        <i class="bi bi-check-circle-fill me-1"></i>Active
+                    <span class="enr-stat-row__value">
+                        @if($enrollment->status === 'pending')
+                            <span class="badge bg-warning text-dark">Pending approval</span>
+                        @elseif($enrollment->status === 'approved')
+                            <span class="badge bg-success">Approved</span>
+                        @else
+                            <span class="badge bg-secondary">Rejected</span>
+                        @endif
                     </span>
                 </div>
                 <div class="enr-stat-row">
@@ -162,6 +168,21 @@
             </div>
             <div class="ad-panel__body">
                 <div class="d-grid gap-2">
+                    @if($enrollment->isPending())
+                        <form action="{{ route('admin.enrollments.approve', $enrollment) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-success enr-action-btn w-100">
+                                <i class="bi bi-check-circle me-2"></i>Approve Enrollment
+                            </button>
+                        </form>
+                        <form action="{{ route('admin.enrollments.reject', $enrollment) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-danger enr-action-btn w-100">
+                                <i class="bi bi-x-circle me-2"></i>Reject Enrollment
+                            </button>
+                        </form>
+                        <div class="enr-divider my-2"></div>
+                    @endif
                     <a href="{{ route('admin.students.show', $enrollment->user) }}"
                         class="btn btn-primary enr-action-btn">
                         <i class="bi bi-person me-2"></i>View Student Profile
@@ -172,8 +193,7 @@
                     </a>
                 </div>
                 <div class="enr-divider my-3"></div>
-                <form action="{{ route('admin.enrollments.destroy', $enrollment) }}" method="POST"
-                    onsubmit="return confirm('Remove this student from the course? This cannot be undone.');">
+                <form action="{{ route('admin.enrollments.destroy', $enrollment) }}" method="POST">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-outline-danger w-100 enr-action-btn">

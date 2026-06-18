@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\LeaveRequest;
+use App\Models\LmsEnrollment;
+use App\Services\EnrollmentRequestService;
 use App\Services\LmsDashboardStatsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
@@ -46,9 +48,26 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
+            $enrollmentService = app(EnrollmentRequestService::class);
+
             $view->with('pendingLeaveCount', LeaveRequest::query()
                 ->where('status', LeaveRequest::STATUS_PENDING)
                 ->count());
+
+            $view->with('pendingEnrollmentCount', $enrollmentService->pendingCount());
+        });
+
+        View::composer('admin.layout', function ($view) {
+            if (! Auth::guard('admin')->check()) {
+                return;
+            }
+
+            $enrollmentService = app(EnrollmentRequestService::class);
+
+            $view->with([
+                'pendingEnrollmentCount' => $enrollmentService->pendingCount(),
+                'enrollmentAlertsApiUrl' => route('admin.dashboard.api.enrollment-alerts'),
+            ]);
         });
     }
 }

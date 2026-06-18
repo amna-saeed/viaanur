@@ -6,13 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Models\LmsEnrollment;
 use App\Models\User;
 use App\Models\Course;
+use App\Services\EnrollmentRequestService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class AdminEnrollmentController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, EnrollmentRequestService $enrollmentService)
     {
-        $query = LmsEnrollment::with(['user', 'course'])->orderByDesc('created_at');
+        $reconciled = $enrollmentService->reconcileApprovedApplications();
+        if ($reconciled > 0) {
+            session()->flash('success', 'Synced '.$reconciled.' approved enrollment(s) with student course access.');
+        }
+
+        $query = LmsEnrollment::with(['user', 'course'])
+            ->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END")
+            ->orderByDesc('created_at');
         
         if ($request->filled('q')) {
             $q = $request->q;
@@ -32,11 +42,24 @@ class AdminEnrollmentController extends Controller
             $query->where('user_id', $request->student_id);
         }
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         $enrollments = $query->paginate(15)->withQueryString();
         $courses = Course::all();
         $students = User::where('role', User::ROLE_STUDENT)->get();
+        $pendingApplications = $enrollmentService->pendingApplications();
+        $pendingCount = $enrollmentService->pendingCount();
 
-        return view('admin.enrollments.index', compact('enrollments', 'courses', 'students'));
+        return view('admin.enrollments.index', compact(
+            'enrollments',
+            'courses',
+            'students',
+            'pendingCount',
+            'pendingApplications',
+            'enrollmentService'
+        ));
     }
 
     public function create()
@@ -62,7 +85,12 @@ class AdminEnrollmentController extends Controller
             return redirect()->back()->with('error', 'This student is already enrolled in this course.');
         }
 
-        LmsEnrollment::create($request->all());
+        LmsEnrollment::create([
+            'user_id' => $request->user_id,
+            'course_id' => $request->course_id,
+            'status' => LmsEnrollment::STATUS_APPROVED,
+            'approved_at' => now(),
+        ]);
         return redirect()->route('admin.enrollments.index')->with('success', 'Student enrolled successfully.');
     }
 
@@ -98,11 +126,44 @@ class AdminEnrollmentController extends Controller
                 LmsEnrollment::create([
                     'user_id' => $student_id,
                     'course_id' => $course_id,
+                    'status' => LmsEnrollment::STATUS_APPROVED,
+                    'approved_at' => now(),
                 ]);
                 $count++;
             }
         }
 
         return redirect()->route('admin.enrollments.index')->with('success', "Enrolled $count student(s) successfully.");
+    }
+
+    public function approve(LmsEnrollment $enrollment, EnrollmentRequestService $enrollmentService): RedirectResponse
+    {
+        try {
+            $enrollment = $enrollmentService->approve($enrollment);
+        } catch (ValidationException $e) {
+            return redirect()->back()->with('error', $e->validator->errors()->first('enrollment'));
+        }
+
+        return redirect()->back()->with('success', $enrollment->user->name.' has been approved for '.$enrollment->course->title.'.');
+    }
+
+    public function reject(LmsEnrollment $enrollment, EnrollmentRequestService $enrollmentService): RedirectResponse
+    {
+        try {
+            $enrollment = $enrollmentService->reject($enrollment);
+        } catch (ValidationException $e) {
+            return redirect()->back()->with('error', $e->validator->errors()->first('enrollment'));
+        }
+
+        return redirect()->back()->with('success', 'Enrollment request for '.$enrollment->user->name.' has been rejected.');
+    }
+
+    public function alerts(EnrollmentRequestService $enrollmentService)
+    {
+        return response()->json([
+            'alerts' => $enrollmentService->alertsPayload(),
+            'pending_count' => $enrollmentService->pendingCount(),
+            'generated_at' => now()->toIso8601String(),
+        ]);
     }
 }

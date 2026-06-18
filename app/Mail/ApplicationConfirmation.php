@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Application;
+use App\Support\CourseApplicationMapper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -18,7 +19,7 @@ class ApplicationConfirmation extends Mailable
     public function __construct(Application $application)
     {
         $this->application = $application;
-        $this->courseLabel = self::courseLabelFor($application->course);
+        $this->courseLabel = CourseApplicationMapper::label($application->course);
     }
 
     public function build()
@@ -26,23 +27,5 @@ class ApplicationConfirmation extends Mailable
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject('We received your application – ' . config('mail.from.name', 'ViAaNur Tutoring'))
             ->view('emails.application-confirmation');
-    }
-
-    public static function courseLabelFor(string $course): string
-    {
-        switch ($course) {
-            case 'social-media':
-                return 'Introduction to Social Media Concepts';
-            case 'gcse-maths':
-                return 'GCSE Level Mathematics';
-            case 'islamic-studies':
-                return 'Islamic Studies';
-            case 'esol':
-                return 'Introduction to ESOL';
-            case 'english':
-                return 'Introduction to English';
-            default:
-                return $course;
-        }
     }
 }

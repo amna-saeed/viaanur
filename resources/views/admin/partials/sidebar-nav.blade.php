@@ -16,6 +16,9 @@
 <a class="admin-lms-nav-link {{ request()->routeIs('admin.enrollments*') ? 'active' : '' }}" href="{{ route('admin.enrollments.index') }}">
     <span class="admin-lms-nav-link__icon" aria-hidden="true"><i class="bi bi-clipboard-check-fill"></i></span>
     <span class="admin-lms-nav-link__label">Enrollments</span>
+    @if(!empty($pendingEnrollmentCount))
+        <span class="admin-lms-nav-link__badge" aria-label="{{ $pendingEnrollmentCount }} pending enrollments">{{ $pendingEnrollmentCount }}</span>
+    @endif
 </a>
 <a class="admin-lms-nav-link {{ request()->routeIs('admin.courses*') ? 'active' : '' }}" href="{{ route('admin.courses.index') }}">
     <span class="admin-lms-nav-link__icon" aria-hidden="true"><i class="bi bi-journal-bookmark-fill"></i></span>

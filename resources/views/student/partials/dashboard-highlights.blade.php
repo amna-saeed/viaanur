@@ -16,17 +16,16 @@
         <ul class="student-dash-highlight-list list-unstyled mb-0">
             @foreach($highlights['new_courses'] as $course)
                 <li class="student-dash-highlight-item student-dash-highlight-item--course">
-                    <span class="student-dash-highlight-item__badge">New course</span>
+                    <span class="student-dash-highlight-item__badge">Approved course</span>
                     <div class="student-dash-highlight-item__body">
                         <strong class="student-dash-highlight-item__title">{{ $course->title }}</strong>
                         <span class="student-dash-highlight-item__meta">
                             {{ $course->lessons_count }} lessons · {{ $course->quizzes_count }} quizzes
                         </span>
                     </div>
-                    <form action="{{ route('student.courses.enroll', $course) }}" method="POST" class="ms-auto">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-light student-dash-highlight-item__btn">Enroll</button>
-                    </form>
+                    <a href="{{ route('student.courses.show', $course) }}" class="btn btn-sm btn-light student-dash-highlight-item__btn ms-auto">
+                        Open
+                    </a>
                 </li>
             @endforeach
             @foreach($highlights['new_quizzes'] as $quiz)

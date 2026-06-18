@@ -20,12 +20,16 @@ class StudentDashboardController extends Controller
     {
         $user = auth()->user();
 
-        $enrolledCourseIds = $user->lmsEnrollments()->pluck('course_id');
-        $enrolledCount = $enrolledCourseIds->count();
+        $approvedCourseIds = $user->lmsEnrollments()->approved()->pluck('course_id');
+        $enrolledCount = $approvedCourseIds->count();
+        $pendingEnrollments = $user->lmsEnrollments()
+            ->pending()
+            ->with(['course:id,title,slug,image,description'])
+            ->latest()
+            ->get();
 
         $catalog = Course::query()
-            ->where('is_published', true)
-            ->whereNotIn('id', $enrolledCourseIds)
+            ->whereIn('id', $approvedCourseIds)
             ->withCount(['lessons', 'quizzes'])
             ->orderByDesc('created_at')
             ->get();
@@ -34,7 +38,7 @@ class StudentDashboardController extends Controller
         $canClaimAdmin = ! User::adminExists();
 
         $courses = Course::query()
-            ->whereIn('id', $enrolledCourseIds)
+            ->whereIn('id', $approvedCourseIds)
             ->withCount(['lessons', 'quizzes'])
             ->get();
 
@@ -67,7 +71,8 @@ class StudentDashboardController extends Controller
             'recentQuizAttempts',
             'recentEnrollmentActivity',
             'enrollmentProgress',
-            'highlights'
+            'highlights',
+            'pendingEnrollments'
         ));
     }
 
@@ -139,7 +144,7 @@ class StudentDashboardController extends Controller
         $genderOptions = StudentInformation::GENDER_OPTIONS;
         $enrollmentProgress = $lmsStats->enrollmentProgressFor($student);
         $quizAttemptsCount = $student->quizAttempts()->whereNotNull('submitted_at')->count();
-        $enrolledCount = $student->lmsEnrollments()->count();
+        $enrolledCount = $student->lmsEnrollments()->approved()->count();
 
         return view('student.profile', compact(
             'student',
@@ -156,10 +161,30 @@ class StudentDashboardController extends Controller
             return redirect()->route('student.dashboard')->with('error', 'This course is not available.');
         }
 
-        LmsEnrollment::firstOrCreate([
-            'user_id' => $request->user()->id,
-            'course_id' => $course->id,
-        ]);
+        $enrollment = LmsEnrollment::firstOrCreate(
+            [
+                'user_id' => $request->user()->id,
+                'course_id' => $course->id,
+            ],
+            [
+                'status' => LmsEnrollment::STATUS_PENDING,
+            ]
+        );
+
+        if ($enrollment->status === LmsEnrollment::STATUS_REJECTED) {
+            $enrollment->update([
+                'status' => LmsEnrollment::STATUS_PENDING,
+                'approved_at' => null,
+            ]);
+        }
+
+        if ($enrollment->isApproved()) {
+            return redirect()->route('student.dashboard')->with('success', 'You are already enrolled in '.$course->title.'.');
+        }
+
+        if ($enrollment->isPending()) {
+            return redirect()->route('student.dashboard')->with('success', 'Your enrollment request for '.$course->title.' has been submitted. You will get access after admin approval.');
+        }
 
         return redirect()->route('student.dashboard')->with('success', 'You are now enrolled in '.$course->title.'.');
     }

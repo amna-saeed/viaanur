@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use App\Support\CourseCatalog;
 use Illuminate\View\View;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -18,6 +19,10 @@ class CourseDetailController extends Controller
 
         return view('pages.coursesDetail.primary', [
             'course' => $course,
+            'lmsCourse' => Course::query()
+                ->where('slug', $slug)
+                ->where('is_published', true)
+                ->first(),
         ]);
     }
 }

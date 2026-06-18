@@ -20,9 +20,9 @@ class LessonController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'video' => 'nullable|string|max:255',
-            'video_file' => 'nullable|file|mimes:mp4,avi,mov,wmv|max:102400', // 100MB max
-            'pdf_notes' => 'nullable|file|mimes:pdf|max:51200', // 50MB max
+            'video' => 'nullable|string|max:2048',
+            'video_file' => 'nullable|file|mimes:mp4,avi,mov,wmv|max:102400',
+            'pdf_notes' => 'nullable|file|mimes:pdf|max:51200',
             'order' => 'nullable|integer|min:0',
         ]);
 

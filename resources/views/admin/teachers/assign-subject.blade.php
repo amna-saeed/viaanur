@@ -100,7 +100,7 @@
                                     </p>
                                 @endif
                             </div>
-                            <form action="{{ route('admin.teachers.remove-subject', [$teacher, $subject]) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove this subject?');">
+                            <form action="{{ route('admin.teachers.remove-subject', [$teacher, $subject]) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-outline-danger">

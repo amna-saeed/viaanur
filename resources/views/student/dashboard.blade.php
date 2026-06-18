@@ -18,11 +18,11 @@
         <div class="student-dash-welcome__copy">
             <p class="student-dash-welcome__eyebrow mb-2">Welcome back</p>
             <h2 id="student-welcome-heading" class="student-dash-welcome__title">{{ auth()->user()->name }}</h2>
-            <p class="student-dash-welcome__text mb-0">Track enrollments, explore new courses, and stay updated with announcements.</p>
+            <p class="student-dash-welcome__text mb-0">Track your approved courses, pending requests, and stay updated with announcements.</p>
         </div>
         <div class="student-dash-welcome__actions d-none d-md-flex">
-            <a href="#catalog-heading" class="btn btn-light btn-sm student-dash-btn-ghost">
-                <i class="bi bi-compass" aria-hidden="true"></i> Browse catalog
+            <a href="{{ route('student.my-courses') }}" class="btn btn-light btn-sm student-dash-btn-ghost">
+                <i class="bi bi-journal-bookmark" aria-hidden="true"></i> My courses
             </a>
             <a href="{{ route('contact-us') }}" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-chat-dots" aria-hidden="true"></i> Get help
@@ -274,11 +274,43 @@
     </div>
 </section>
 
+@if(!empty($pendingEnrollments) && $pendingEnrollments->isNotEmpty())
+<section class="student-dash-catalog mt-4 mt-xl-5 pt-2" aria-labelledby="pending-enrollments-heading">
+    <header class="student-dash-section-head">
+        <div>
+            <h2 id="pending-enrollments-heading" class="student-dash-section-head__title">Pending approval</h2>
+            <p class="student-dash-section-head__sub">These courses will appear in My Courses after admin approval</p>
+        </div>
+        <span class="badge rounded-pill student-dash-badge bg-warning text-dark">{{ $pendingEnrollments->count() }} waiting</span>
+    </header>
+    <div class="row g-3 g-lg-4">
+        @foreach($pendingEnrollments as $pending)
+            <div class="col-sm-6 col-lg-4">
+                <article class="student-dash-course-card student-dash-course-card--catalog h-100 border border-warning">
+                    <div class="student-dash-course-card__body">
+                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                            <h3 class="student-dash-course-card__title">{{ $pending->course->title }}</h3>
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        </div>
+                        @if($pending->course->description)
+                            <p class="student-dash-course-card__desc">{{ \Illuminate\Support\Str::limit(strip_tags($pending->course->description), 95) }}</p>
+                        @endif
+                        <p class="small text-muted mb-0">
+                            <i class="bi bi-clock-history me-1"></i> Requested {{ $pending->created_at->format('M j, Y') }}
+                        </p>
+                    </div>
+                </article>
+            </div>
+        @endforeach
+    </div>
+</section>
+@endif
+
 <section class="student-dash-catalog mt-4 mt-xl-5 pt-2" aria-labelledby="catalog-heading">
     <header class="student-dash-section-head">
         <div>
             <h2 id="catalog-heading" class="student-dash-section-head__title">Course catalog</h2>
-            <p class="student-dash-section-head__sub">Discover and enroll in published courses</p>
+            <p class="student-dash-section-head__sub">Only courses approved by your administrator</p>
         </div>
         @if($summary['catalog_count'] > 0)
             <span class="badge rounded-pill student-dash-badge student-dash-badge--muted">{{ $summary['catalog_count'] }} available</span>
@@ -288,8 +320,8 @@
     @if($catalog->isEmpty())
         <div class="student-dash-panel student-dash-panel--empty">
             <i class="bi bi-inboxes student-dash-panel__empty-icon" aria-hidden="true"></i>
-            <p class="student-dash-panel__empty-title">All caught up</p>
-            <p class="student-dash-panel__empty-text mb-0">There are no additional published courses to join right now.</p>
+            <p class="student-dash-panel__empty-title">No approved courses yet</p>
+            <p class="student-dash-panel__empty-text mb-0">Courses will appear here after your administrator approves your enrollment request.</p>
         </div>
     @else
         <div class="row g-3 g-lg-4">
@@ -312,12 +344,9 @@
                                 <li><i class="bi bi-collection-play" aria-hidden="true"></i> {{ (int) $course->lessons_count }} lessons</li>
                                 <li><i class="bi bi-patch-question" aria-hidden="true"></i> {{ (int) $course->quizzes_count }} quizzes</li>
                             </ul>
-                            <form action="{{ route('student.courses.enroll', $course) }}" method="post" class="mt-auto">
-                                @csrf
-                                <button type="submit" class="btn btn-lms-primary w-100 student-dash-btn-enroll">
-                                    <i class="bi bi-plus-circle" aria-hidden="true"></i> Enroll now
-                                </button>
-                            </form>
+                            <a href="{{ route('student.courses.show', $course) }}" class="btn btn-lms-primary w-100 mt-auto">
+                                <i class="bi bi-journal-bookmark" aria-hidden="true"></i> Open course
+                            </a>
                         </div>
                     </article>
                 </div>

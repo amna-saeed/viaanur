@@ -144,6 +144,110 @@
             font-size: .8rem;
         }
 
+        /* ── Enrollment notification (top-right) ── */
+        .admin-enrollment-notify {
+            position: relative;
+        }
+        .admin-enrollment-notify__btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--ad-border);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ad-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background .2s, box-shadow .2s;
+            box-shadow: var(--ad-shadow);
+        }
+        .admin-enrollment-notify__btn:hover {
+            background: var(--ad-primary-soft);
+            box-shadow: var(--ad-shadow-hover);
+        }
+        .admin-enrollment-notify__badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 1.1rem;
+            height: 1.1rem;
+            padding: 0 .3rem;
+            border-radius: 999px;
+            background: #e11d48;
+            color: #fff;
+            font-size: .62rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            border: 2px solid #fff;
+        }
+        .admin-enrollment-toasts {
+            position: fixed;
+            top: 78px;
+            right: 1.25rem;
+            z-index: 1080;
+            display: flex;
+            flex-direction: column;
+            gap: .65rem;
+            max-width: 340px;
+            width: calc(100vw - 2.5rem);
+            pointer-events: none;
+        }
+        .admin-enrollment-toast {
+            pointer-events: auto;
+            border: 1px solid rgba(178,205,52,.5);
+            border-left: 4px solid #b2cd34;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #fafbe8 0%, #fff 100%);
+            padding: .85rem 1rem;
+            box-shadow: 0 8px 24px rgba(50,47,137,.14);
+            animation: adminEnrollmentToastIn .35s ease;
+        }
+        .admin-enrollment-toast.is-closing {
+            opacity: 0;
+            transform: translateX(12px);
+            transition: opacity .3s ease, transform .3s ease;
+        }
+        .admin-enrollment-toast__label {
+            font-size: .68rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #6b8c00;
+            margin-bottom: .2rem;
+        }
+        .admin-enrollment-toast__title {
+            font-size: .95rem;
+            font-weight: 800;
+            color: #1a1860;
+            margin: 0 0 .25rem;
+        }
+        .admin-enrollment-toast__text {
+            font-size: .8rem;
+            color: #475569;
+            margin: 0 0 .65rem;
+        }
+        .admin-enrollment-toast__actions {
+            display: flex;
+            gap: .45rem;
+            flex-wrap: wrap;
+        }
+        .admin-enrollment-toast__actions .btn {
+            font-size: .72rem;
+            padding: .25rem .65rem;
+        }
+        @keyframes adminEnrollmentToastIn {
+            from { opacity: 0; transform: translateX(16px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @media (max-width: 991px) {
+            .admin-enrollment-toasts { top: 68px; }
+        }
+
         /* ── Main content area ── */
         .admin-lms-content {
             background: var(--ad-bg);
@@ -280,10 +384,18 @@
                 <h1 class="admin-lms-topbar-title mb-0">@yield('page_heading', 'Admin')</h1>
             </div>
             <div class="admin-lms-topbar__actions">
+                <div class="admin-enrollment-notify" id="admin-enrollment-notify">
+                    <button type="button" class="admin-enrollment-notify__btn" id="admin-enrollment-notify-btn" aria-label="Enrollment notifications" title="Enrollment notifications">
+                        <i class="bi bi-bell-fill" aria-hidden="true"></i>
+                        @if(!empty($pendingEnrollmentCount))
+                            <span class="admin-enrollment-notify__badge" id="admin-enrollment-notify-badge">{{ $pendingEnrollmentCount }}</span>
+                        @endif
+                    </button>
+                </div>
                 <span class="admin-lms-topbar-meta d-none d-md-inline">
                     <i class="bi bi-person-badge me-1" aria-hidden="true"></i>{{ auth()->user()->name }}
                 </span>
-                <form action="{{ route('admin.logout') }}" method="POST" class="d-inline" onsubmit="return confirm('Sign out?');">
+                <form action="{{ route('admin.logout') }}" method="POST" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-outline-danger btn-sm admin-lms-btn-signout">
                         <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
@@ -310,8 +422,92 @@
         </main>
     </div>
 
+    <div id="admin-enrollment-toasts" class="admin-enrollment-toasts" aria-live="polite" aria-atomic="false"></div>
+
     <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+    @if(!empty($enrollmentAlertsApiUrl))
+    <script>
+    (function () {
+        const alertsUrl = @json($enrollmentAlertsApiUrl);
+        const container = document.getElementById('admin-enrollment-toasts');
+        const badge = document.getElementById('admin-enrollment-notify-badge');
+        const notifyBtn = document.getElementById('admin-enrollment-notify-btn');
+        if (!alertsUrl || !container) return;
+
+        const renderedIds = new Set();
+        const escapeHtml = (value) => String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/"/g, '&quot;');
+
+        const updateBadge = (count) => {
+            if (!notifyBtn) return;
+            let el = badge;
+            if (count > 0) {
+                if (!el) {
+                    el = document.createElement('span');
+                    el.className = 'admin-enrollment-notify__badge';
+                    el.id = 'admin-enrollment-notify-badge';
+                    notifyBtn.appendChild(el);
+                }
+                el.textContent = count;
+            } else if (el) {
+                el.remove();
+            }
+        };
+
+        const removeToast = (id) => {
+            const el = container.querySelector('[data-enrollment-alert-id="' + id + '"]');
+            if (!el) return;
+            el.classList.add('is-closing');
+            setTimeout(() => el.remove(), 300);
+        };
+
+        const renderAlert = (alert) => {
+            if (!alert || renderedIds.has(alert.id)) return;
+            renderedIds.add(alert.id);
+
+            const el = document.createElement('div');
+            el.className = 'admin-enrollment-toast';
+            el.setAttribute('data-enrollment-alert-id', alert.id);
+            el.innerHTML =
+                '<p class="admin-enrollment-toast__label">Announcement</p>' +
+                '<h3 class="admin-enrollment-toast__title">NEW STUDENT ENROLL</h3>' +
+                '<p class="admin-enrollment-toast__text"><strong>' + escapeHtml(alert.student_name) + '</strong> requested enrollment in <strong>' + escapeHtml(alert.course_title) + '</strong>.</p>' +
+                '<div class="admin-enrollment-toast__actions">' +
+                    '<a href="' + escapeHtml(alert.url) + '" class="btn btn-primary btn-sm">Review</a>' +
+                    '<a href="{{ route('admin.enrollments.index') }}" class="btn btn-outline-secondary btn-sm">All enrollments</a>' +
+                    '<button type="button" class="btn btn-link btn-sm text-muted ms-auto" data-dismiss-enrollment-alert="' + alert.id + '">Dismiss</button>' +
+                '</div>';
+            container.appendChild(el);
+        };
+
+        container.addEventListener('click', (e) => {
+            const dismissId = e.target.closest('[data-dismiss-enrollment-alert]')?.getAttribute('data-dismiss-enrollment-alert');
+            if (dismissId) {
+                e.preventDefault();
+                removeToast(dismissId);
+            }
+        });
+
+        const poll = async () => {
+            try {
+                const res = await fetch(alertsUrl, { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+                if (!res.ok) return;
+                const data = await res.json();
+                updateBadge(data.pending_count || 0);
+                (data.alerts || []).forEach(renderAlert);
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        poll();
+        setInterval(poll, 30000);
+    })();
+    </script>
+    @endif
     @stack('scripts')
 </body>
 </html>

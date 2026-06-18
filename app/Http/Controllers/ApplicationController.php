@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Application;
 use App\Mail\ApplicationConfirmation;
 use App\Mail\ApplicationReceived;
+use App\Services\EnrollmentRequestService;
+use App\Support\CourseApplicationMapper;
 use App\Support\OutboundMail;
 use App\Support\StudentInformation;
 use Illuminate\Http\Request;
 
 class ApplicationController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request, EnrollmentRequestService $enrollmentService)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -20,6 +22,8 @@ class ApplicationController extends Controller
             'course' => 'required|string|max:100',
             'message' => 'nullable|string|max:2000',
         ] + StudentInformation::applicationRules(), StudentInformation::validationMessages());
+
+        $courseId = CourseApplicationMapper::resolveCourseId($validated['course']);
 
         $application = Application::create([
             'name' => $validated['name'],
@@ -34,8 +38,12 @@ class ApplicationController extends Controller
             'guardian_contact_number' => $validated['guardian_contact_number'],
             'emergency_contact_number' => $validated['emergency_contact_number'] ?? null,
             'course' => $validated['course'],
+            'course_id' => $courseId,
             'message' => $validated['message'] ?? null,
+            'status' => Application::STATUS_PENDING,
         ]);
+
+        $enrollmentService->syncEnrollmentFromApplication($application);
 
         $toEmail = config('mail.application_to', 'admin@viaanur.com');
         $bccRaw = (string) config('mail.application_bcc', '');
@@ -63,8 +71,8 @@ class ApplicationController extends Controller
         }
 
         $message = $mailSent
-            ? 'Your request has been submitted successfully. We will reach out to you soon.'
-            : 'Application saved. Email could not be sent (see error below).';
+            ? 'Your enrollment request has been submitted successfully. You will get course access after admin approval.'
+            : 'Enrollment request saved. Email could not be sent (see error below).';
 
         $deliveryNote = OutboundMail::localDeliveryNote();
         if ($mailSent && ! ($adminResult['inbox_delivery'] ?? false) && $deliveryNote === null) {

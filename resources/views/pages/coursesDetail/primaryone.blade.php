@@ -51,9 +51,22 @@
                     </div>
                     <p class="cd-premium-ticket__desc">{{ $course['description'] }}</p>
                     <div class="cd-premium-ticket__actions">
-                        <div class="button blick-100 enroll-apply-btn js-apply-form-open">
-                            <a class="cd-premium-btn cd-premium-btn--primary bliink-inner1" href="javascript:void(0)">Enroll Now</a>
-                        </div>
+                        @auth('student')
+                            @if(!empty($lmsCourse))
+                                <form action="{{ route('student.courses.enroll', $lmsCourse) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="cd-premium-btn cd-premium-btn--primary bliink-inner1 border-0">Enroll Now</button>
+                                </form>
+                            @else
+                                <div class="button blick-100 enroll-apply-btn js-apply-form-open" data-apply-course="{{ $course['slug'] ?? '' }}">
+                                    <a class="cd-premium-btn cd-premium-btn--primary bliink-inner1" href="javascript:void(0)">Enroll Now</a>
+                                </div>
+                            @endif
+                        @else
+                            <div class="button blick-100 enroll-apply-btn js-apply-form-open" data-apply-course="{{ $course['slug'] ?? '' }}">
+                                <a class="cd-premium-btn cd-premium-btn--primary bliink-inner1" href="javascript:void(0)">Enroll Now</a>
+                            </div>
+                        @endauth
                         <a href="{{ route('home') }}" class="cd-premium-btn cd-premium-btn--ghost">
                             <i class="bi bi-arrow-left" aria-hidden="true"></i> Back to all courses
                         </a>

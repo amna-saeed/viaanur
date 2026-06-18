@@ -23,7 +23,7 @@ class LmsDashboardStatsService
             'total_teachers' => Teacher::count(),
             'total_courses' => Course::count(),
             'active_classes' => LmsClass::where('is_active', true)->count(),
-            'total_enrollments' => LmsEnrollment::count(),
+            'total_enrollments' => LmsEnrollment::approved()->count(),
         ];
     }
 
@@ -40,7 +40,7 @@ class LmsDashboardStatsService
     public function studentsPerCourse(): array
     {
         return Course::query()
-            ->withCount('enrollments')
+            ->withCount(['enrollments' => fn ($q) => $q->approved()])
             ->orderByDesc('enrollments_count')
             ->get(['id', 'title'])
             ->map(fn ($c) => [
@@ -85,6 +85,7 @@ class LmsDashboardStatsService
         $since = now()->subDays($days)->startOfDay();
 
         $rows = LmsEnrollment::query()
+            ->approved()
             ->where('created_at', '>=', $since)
             ->selectRaw('course_id, count(*) as cnt')
             ->groupBy('course_id')
@@ -153,6 +154,7 @@ class LmsDashboardStatsService
     public function recentEnrollments(User $user, int $limit = 5): Collection
     {
         return $user->lmsEnrollments()
+            ->approved()
             ->with(['course:id,title,slug'])
             ->latest()
             ->take($limit)
@@ -167,6 +169,7 @@ class LmsDashboardStatsService
     public function enrollmentProgressFor(User $user): Collection
     {
         $enrollments = $user->lmsEnrollments()
+            ->approved()
             ->with(['course' => fn ($q) => $q->withCount(['lessons', 'quizzes'])])
             ->orderByDesc('created_at')
             ->get();
@@ -214,16 +217,25 @@ class LmsDashboardStatsService
      */
     public function studentHighlights(User $user, Carbon $since): array
     {
-        $enrolledIds = $user->lmsEnrollments()->pluck('course_id');
+        $enrolledIds = $user->lmsEnrollments()->approved()->pluck('course_id');
 
-        $newCourses = Course::query()
-            ->where('is_published', true)
-            ->whereNotIn('id', $enrolledIds)
-            ->where('created_at', '>=', $since)
-            ->withCount(['lessons', 'quizzes'])
+        $newCourses = $user->lmsEnrollments()
+            ->approved()
+            ->where(function ($query) use ($since) {
+                $query->where('approved_at', '>=', $since)
+                    ->orWhere(function ($inner) use ($since) {
+                        $inner->whereNull('approved_at')
+                            ->where('created_at', '>=', $since);
+                    });
+            })
+            ->with(['course' => fn ($q) => $q->withCount(['lessons', 'quizzes'])])
+            ->latest('approved_at')
             ->latest()
             ->take(6)
-            ->get();
+            ->get()
+            ->pluck('course')
+            ->filter()
+            ->values();
 
         $attemptedQuizIds = $user->quizAttempts()
             ->whereNotNull('submitted_at')

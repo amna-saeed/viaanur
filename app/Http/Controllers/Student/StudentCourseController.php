@@ -218,16 +218,13 @@ class StudentCourseController extends Controller
 
     private function ensureEnrolled(int $userId, Course $course): void
     {
-        if (! $course->is_published) {
-            abort(404);
-        }
-
         $enrolled = LmsEnrollment::where('user_id', $userId)
             ->where('course_id', $course->id)
+            ->where('status', LmsEnrollment::STATUS_APPROVED)
             ->exists();
 
         if (! $enrolled) {
-            abort(403, 'You must be enrolled in this course.');
+            abort(403, 'You must be enrolled and approved for this course.');
         }
     }
 

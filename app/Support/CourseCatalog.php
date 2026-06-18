@@ -358,6 +358,71 @@ class CourseCatalog
     }
 
     /**
+     * Apply form & enrollment — all catalog courses as select options.
+     *
+     * @return list<array{value: string, label: string, group: string}>
+     */
+    public static function forApplyForm(): array
+    {
+        return array_values(array_map(static function (array $course) {
+            $label = $course['title'];
+            if (! empty($course['subtitle'])) {
+                $label .= ' '.$course['subtitle'];
+            }
+
+            return [
+                'value' => $course['slug'],
+                'label' => $label,
+                'group' => $course['group'] ?? 'other',
+            ];
+        }, self::all()));
+    }
+
+    /**
+     * Grouped options for apply-form &lt;select&gt; (matches category groups).
+     *
+     * @return list<array{label: string, options: list<array{value: string, label: string}>}>
+     */
+    public static function applyFormGroups(): array
+    {
+        $groupLabels = [
+            'primary' => 'Primary Subjects',
+            'secondary' => 'Secondary Subjects (KS3)',
+            'gcse' => 'GCSE',
+            'esol' => 'ESOL',
+            'adult' => 'Adult Learning / Skills',
+            'faith' => 'Faith & Spiritual Learning',
+        ];
+
+        $byGroup = [];
+        foreach (self::forApplyForm() as $option) {
+            $byGroup[$option['group']][] = [
+                'value' => $option['value'],
+                'label' => $option['label'],
+            ];
+        }
+
+        $groups = [];
+        foreach ($groupLabels as $key => $label) {
+            if (! empty($byGroup[$key])) {
+                $groups[] = ['label' => $label, 'options' => $byGroup[$key]];
+            }
+        }
+
+        foreach ($byGroup as $key => $options) {
+            if (isset($groupLabels[$key])) {
+                continue;
+            }
+            $groups[] = [
+                'label' => ucwords(str_replace(['-', '_'], ' ', $key)),
+                'options' => $options,
+            ];
+        }
+
+        return $groups;
+    }
+
+    /**
      * Slider / categories component data.
      *
      * @return list<array<string, mixed>>

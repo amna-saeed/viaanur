@@ -594,14 +594,14 @@
                                     <td class="text-muted text-nowrap">{{ $leave->created_at->format('M j, Y g:i A') }}</td>
                                     <td>
                                         <div class="admin-leave-actions">
-                                            <form action="{{ route('admin.leave-requests.approve', $leave) }}" method="POST" onsubmit="return confirm('Approve this leave request?');">
+                                            <form action="{{ route('admin.leave-requests.approve', $leave) }}" method="POST">
                                                 @csrf
                                                 <input type="text" name="admin_note" class="form-control form-control-sm" placeholder="Note (optional)" maxlength="1000">
                                                 <button type="submit" class="btn btn-success btn-sm">
                                                     <i class="bi bi-check-lg"></i> Approve
                                                 </button>
                                             </form>
-                                            <form action="{{ route('admin.leave-requests.reject', $leave) }}" method="POST" onsubmit="return confirm('Reject this leave request?');">
+                                            <form action="{{ route('admin.leave-requests.reject', $leave) }}" method="POST">
                                                 @csrf
                                                 <input type="text" name="admin_note" class="form-control form-control-sm" placeholder="Reason (optional)" maxlength="1000">
                                                 <button type="submit" class="btn btn-outline-danger btn-sm">

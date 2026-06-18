@@ -43,24 +43,29 @@
                     <p class="student-dash-panel__empty-text mb-0">No lessons available yet.</p>
                 </div>
             @else
-                <div class="student-course-list">
+                <div class="row g-3">
                     @foreach($course->lessons as $lesson)
-                        <a href="{{ route('student.courses.lessons.show', [$course, $lesson]) }}" class="student-course-list__item">
-                            <span class="student-course-list__icon" aria-hidden="true"><i class="bi bi-play-circle"></i></span>
-                            <span class="student-course-list__body">
-                                <span class="student-course-list__title">{{ $lesson->title }}</span>
-                                <span class="student-course-list__meta">
-                                    @if($lesson->video)
-                                        <i class="bi bi-camera-video" aria-hidden="true"></i> Video
-                                    @endif
-                                    @if($lesson->pdf_notes)
-                                        @if($lesson->video) · @endif
-                                        <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> PDF notes
-                                    @endif
-                                </span>
-                            </span>
-                            <span class="student-course-list__arrow" aria-hidden="true"><i class="bi bi-chevron-right"></i></span>
-                        </a>
+                        <div class="col-md-6">
+                            <a href="{{ route('student.courses.lessons.show', [$course, $lesson]) }}" class="text-decoration-none d-block h-100">
+                                <article class="student-dash-course-card h-100">
+                                    <div class="student-dash-course-card__body">
+                                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                            <span class="badge student-dash-badge student-dash-badge--muted">Lesson {{ $lesson->order }}</span>
+                                            <i class="bi bi-play-circle text-primary fs-4" aria-hidden="true"></i>
+                                        </div>
+                                        <h3 class="student-dash-course-card__title">{{ $lesson->title }}</h3>
+                                        <ul class="student-dash-meta list-unstyled mb-0">
+                                            @if($lesson->video)
+                                                <li><i class="bi bi-camera-video" aria-hidden="true"></i> Video included</li>
+                                            @endif
+                                            @if($lesson->pdf_notes)
+                                                <li><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> PDF notes</li>
+                                            @endif
+                                        </ul>
+                                    </div>
+                                </article>
+                            </a>
+                        </div>
                     @endforeach
                 </div>
             @endif

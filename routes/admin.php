@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminCourseController;
 use App\Http\Controllers\Admin\LessonController;
 use App\Http\Controllers\Admin\QuizController;
 use App\Http\Controllers\Admin\AdminTeacherController;
+use App\Http\Controllers\Admin\AdminApplicationController;
 use App\Http\Controllers\Admin\AdminEnrollmentController;
 use App\Http\Controllers\Admin\AdminLeaveRequestController;
 
@@ -70,8 +71,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/enrollments/create', [AdminEnrollmentController::class, 'create'])->name('enrollments.create');
         Route::post('/enrollments', [AdminEnrollmentController::class, 'store'])->name('enrollments.store');
         Route::get('/enrollments/{enrollment}', [AdminEnrollmentController::class, 'show'])->name('enrollments.show');
+        Route::post('/enrollments/{enrollment}/approve', [AdminEnrollmentController::class, 'approve'])->name('enrollments.approve');
+        Route::post('/enrollments/{enrollment}/reject', [AdminEnrollmentController::class, 'reject'])->name('enrollments.reject');
         Route::delete('/enrollments/{enrollment}', [AdminEnrollmentController::class, 'destroy'])->name('enrollments.destroy');
         Route::post('/enrollments/bulk', [AdminEnrollmentController::class, 'bulkEnroll'])->name('enrollments.bulk');
+        Route::get('/dashboard/api/enrollment-alerts', [AdminEnrollmentController::class, 'alerts'])->name('dashboard.api.enrollment-alerts');
+
+        Route::get('/applications/{application}', [AdminApplicationController::class, 'show'])->name('applications.show');
+        Route::post('/applications/{application}/approve', [AdminApplicationController::class, 'approve'])->name('applications.approve');
+        Route::post('/applications/{application}/reject', [AdminApplicationController::class, 'reject'])->name('applications.reject');
 
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     });

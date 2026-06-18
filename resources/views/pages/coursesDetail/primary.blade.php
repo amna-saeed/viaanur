@@ -29,6 +29,7 @@
 
         @include('pages.coursesDetail.primaryone', [
             'course' => $course,
+            'lmsCourse' => $lmsCourse ?? null,
         ])
     </div>
 </div>

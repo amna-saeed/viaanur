@@ -59,7 +59,7 @@
                             <td>
                                 <a href="{{ route('admin.quizzes.edit', [$course, $quiz]) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                                 <a href="{{ route('admin.quizzes.attempts', [$course, $quiz]) }}" class="btn btn-sm btn-outline-info">Results</a>
-                                <form action="{{ route('admin.quizzes.destroy', [$course, $quiz]) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this quiz?');">
+                                <form action="{{ route('admin.quizzes.destroy', [$course, $quiz]) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>

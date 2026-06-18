@@ -46,7 +46,7 @@
                                 <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                                 <a href="{{ route('admin.lessons.index', $course) }}" class="btn btn-sm btn-outline-secondary">Lessons</a>
                                 <a href="{{ route('admin.quizzes.index', $course) }}" class="btn btn-sm btn-outline-info">Quizzes</a>
-                                <form action="{{ route('admin.courses.destroy', $course) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this course?');">
+                                <form action="{{ route('admin.courses.destroy', $course) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>

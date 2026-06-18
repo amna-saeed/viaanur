@@ -176,9 +176,6 @@
                 formEl.reportValidity();
                 return;
             }
-            if (!confirm('Submit your quiz? You cannot change answers after submitting.')) {
-                e.preventDefault();
-            }
         });
     }
 
