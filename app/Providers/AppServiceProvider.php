@@ -6,6 +6,7 @@ use App\Models\LeaveRequest;
 use App\Models\LmsEnrollment;
 use App\Services\EnrollmentRequestService;
 use App\Services\LmsDashboardStatsService;
+use App\Support\StudentRoute;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -20,7 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $helper = app_path('Helpers/student_route.php');
+        if (is_file($helper)) {
+            require_once $helper;
+        }
     }
 
     /**
@@ -31,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         View::composer('student.*', function () {
-            $params = student_route_params();
+            $params = StudentRoute::params();
             if ($params !== []) {
                 URL::defaults($params);
             }

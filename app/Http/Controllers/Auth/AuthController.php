@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\LmsAuth;
 use App\Support\StudentInformation;
+use App\Support\StudentRoute;
 use App\Support\StudentSessionPool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -89,7 +90,7 @@ class AuthController extends Controller
             LmsAuth::syncRoleToSession($request, $user, 'student');
             $request->session()->put('student_active_context', $token);
 
-            return redirect()->route('student.dashboard', student_route_params($token));
+            return redirect()->route('student.dashboard', StudentRoute::params($token));
         }
 
         $user = LmsAuth::applyPostAuthRoleRules($user);

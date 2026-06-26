@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\LmsDashboardStatsService;
 use App\Services\LeaveRequestService;
 use App\Support\StudentInformation;
+use App\Support\StudentRoute;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -119,7 +120,7 @@ class StudentDashboardController extends Controller
             $validated['start_date'],
             $validated['end_date']
         )) {
-            return student_redirect('student.attendance')
+            return StudentRoute::redirect('student.attendance')
                 ->withInput()
                 ->with('error', 'You already have a pending leave request for overlapping dates.');
         }
@@ -132,7 +133,7 @@ class StudentDashboardController extends Controller
             'status' => LeaveRequest::STATUS_PENDING,
         ]);
 
-        return student_redirect('student.attendance')
+        return StudentRoute::redirect('student.attendance')
             ->with('success', 'Your leave request has been submitted and is pending admin review.');
     }
 
@@ -156,7 +157,7 @@ class StudentDashboardController extends Controller
     public function enroll(Request $request, Course $course): RedirectResponse
     {
         if (! $course->is_published) {
-            return student_redirect('student.dashboard')->with('error', 'This course is not available.');
+            return StudentRoute::redirect('student.dashboard')->with('error', 'This course is not available.');
         }
 
         $enrollment = LmsEnrollment::firstOrCreate(
@@ -177,13 +178,13 @@ class StudentDashboardController extends Controller
         }
 
         if ($enrollment->isApproved()) {
-            return student_redirect('student.dashboard')->with('success', 'You are already enrolled in '.$course->title.'.');
+            return StudentRoute::redirect('student.dashboard')->with('success', 'You are already enrolled in '.$course->title.'.');
         }
 
         if ($enrollment->isPending()) {
-            return student_redirect('student.dashboard')->with('success', 'Your enrollment request for '.$course->title.' has been submitted. You will get access after admin approval.');
+            return StudentRoute::redirect('student.dashboard')->with('success', 'Your enrollment request for '.$course->title.' has been submitted. You will get access after admin approval.');
         }
 
-        return student_redirect('student.dashboard')->with('success', 'You are now enrolled in '.$course->title.'.');
+        return StudentRoute::redirect('student.dashboard')->with('success', 'You are now enrolled in '.$course->title.'.');
     }
 }

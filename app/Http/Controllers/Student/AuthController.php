@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Support\LmsAuth;
+use App\Support\StudentRoute;
 use App\Support\StudentSessionPool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,7 +59,7 @@ class AuthController extends Controller
         LmsAuth::syncRoleToSession($request, $user, 'student');
         $request->session()->put('student_active_context', $token);
 
-        return redirect()->intended(route('student.dashboard', student_route_params($token)));
+        return redirect()->intended(route('student.dashboard', StudentRoute::params($token)));
     }
 
     public function logout(Request $request)
@@ -76,7 +77,7 @@ class AuthController extends Controller
         if ($pool->hasAny()) {
             $nextToken = $pool->firstToken();
 
-            return redirect()->route('student.dashboard', student_route_params($nextToken));
+            return redirect()->route('student.dashboard', StudentRoute::params($nextToken));
         }
 
         if (! Auth::guard('admin')->check()) {
