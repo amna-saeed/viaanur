@@ -254,6 +254,7 @@
                             </div>
                         @endif
                         @include('partials.student-dashboard-metrics-fields', ['profile' => $profile, 'student' => $student])
+                        @include('partials.student-lecture-attendance-info', ['lectureAttendance' => $lectureAttendanceItems ?? collect()])
                     @endunless
                 </div>
             </div>
@@ -702,6 +703,50 @@
 .sp-check-item--done  i { color: #0d9488; }
 .sp-check-item--pending { color: #94a3b8; }
 .sp-check-item--pending i { color: #cbd5e1; }
+
+/* ── Lecture attendance ── */
+.sp-lecture-attendance__list {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+.sp-lecture-attendance__item {
+    border: 1px solid #e4e4f0;
+    border-radius: 10px;
+    padding: .85rem 1rem;
+    background: #fafbff;
+}
+.sp-lecture-attendance__item--attended {
+    border-color: #99f6e4;
+    background: #f0fdfb;
+}
+.sp-lecture-attendance__item--missing {
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+.sp-lecture-attendance__title {
+    font-size: .88rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: .35rem;
+}
+.sp-lecture-attendance__course {
+    display: inline-block;
+    margin-left: .45rem;
+    font-size: .72rem;
+    font-weight: 600;
+    color: #64748b;
+}
+.sp-lecture-attendance__status {
+    font-size: .82rem;
+    color: #334155;
+}
+.sp-lecture-attendance__meta {
+    display: inline-block;
+    margin-top: .35rem;
+    font-size: .72rem;
+    color: #64748b;
+}
 
 /* ── Responsive ── */
 @media (max-width: 575.98px) {

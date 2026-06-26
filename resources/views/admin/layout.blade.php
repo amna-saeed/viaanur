@@ -289,10 +289,29 @@
             border-color: #9c9ac2;
             box-shadow: 0 0 0 3px rgba(50,47,137,.12);
         }
-        .admin-lms-app .pagination .page-link { color: #322f89; }
+        .admin-lms-app .pagination {
+            margin-bottom: 0;
+            flex-wrap: wrap;
+            gap: .25rem;
+        }
+        .admin-lms-app .pagination .page-link {
+            color: #322f89;
+            border-radius: 8px;
+            min-width: 38px;
+            text-align: center;
+        }
+        .admin-lms-app .pagination .page-item.disabled .page-link {
+            color: #94a3b8;
+            background: #f8fafc;
+        }
         .admin-lms-app .pagination .page-item.active .page-link {
             background: #322f89;
             border-color: #322f89;
+            color: #fff;
+        }
+        .admin-lms-app .pagination .page-link:hover {
+            color: #1a1860;
+            background: #eeedf8;
         }
         .admin-lms-badge--role {
             background: #eeedf8;

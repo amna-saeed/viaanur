@@ -7,6 +7,7 @@ use App\Models\LmsEnrollment;
 use App\Services\EnrollmentRequestService;
 use App\Services\LmsDashboardStatsService;
 use App\Support\StudentRoute;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -34,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Paginator::useBootstrap();
+
         View::composer('student.*', function () {
             $params = StudentRoute::params();
             if ($params !== []) {

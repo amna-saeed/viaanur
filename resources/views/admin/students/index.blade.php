@@ -116,7 +116,11 @@
 
         @if($students->hasPages())
             <div class="stu-pagination">
-                {{ $students->links() }}
+                <p class="stu-pagination__summary">
+                    Showing <strong>{{ $students->firstItem() }}</strong> to <strong>{{ $students->lastItem() }}</strong>
+                    of <strong>{{ $students->total() }}</strong> students
+                </p>
+                {{ $students->onEachSide(1)->links() }}
             </div>
         @endif
     </div>
@@ -288,8 +292,27 @@
 .stu-pagination {
     padding: 1rem 1.25rem;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
     border-top: 1px solid #f0f0f8;
+    background: #fafbff;
+}
+.stu-pagination__summary {
+    margin: 0;
+    font-size: .82rem;
+    color: #64748b;
+}
+.stu-pagination .pagination {
+    margin-bottom: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .25rem;
+}
+.stu-pagination .page-link {
+    border-radius: 8px !important;
+    min-width: 38px;
+    text-align: center;
 }
 
 @media (max-width: 575.98px) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\LectureAttendanceService;
 use App\Support\StudentInformation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -65,14 +66,15 @@ class AdminStudentController extends Controller
         return redirect()->route('admin.students.show', $student)->with('success', 'Student account created successfully.');
     }
 
-    public function show(User $student)
+    public function show(User $student, LectureAttendanceService $lectureAttendance)
     {
         $this->ensureStudent($student);
 
         $student->loadMissing(['studentProfile', 'lmsEnrollments', 'enrolledCourses.quizzes', 'quizAttempts']);
         $genderOptions = StudentInformation::GENDER_OPTIONS;
+        $lectureAttendanceItems = $lectureAttendance->assignedLecturesFor($student);
 
-        return view('admin.students.show', compact('student', 'genderOptions'));
+        return view('admin.students.show', compact('student', 'genderOptions', 'lectureAttendanceItems'));
     }
 
     public function edit(User $student)

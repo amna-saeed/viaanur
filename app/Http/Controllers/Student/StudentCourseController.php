@@ -8,6 +8,7 @@ use App\Models\Lesson;
 use App\Models\LmsEnrollment;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Services\LectureAttendanceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -43,10 +44,12 @@ class StudentCourseController extends Controller
         return view('student.courses.show', compact('course', 'attemptsByQuiz', 'submittedCounts'));
     }
 
-    public function showLesson(Course $course, Lesson $lesson): View
+    public function showLesson(Course $course, Lesson $lesson, LectureAttendanceService $lectureAttendance): View
     {
         $this->ensureEnrolled(auth()->id(), $course);
         $this->ensureLessonBelongsToCourse($lesson, $course);
+
+        $lectureAttendance->markAttended(auth()->id(), $lesson->id);
 
         $lesson->load('quizzes');
 
