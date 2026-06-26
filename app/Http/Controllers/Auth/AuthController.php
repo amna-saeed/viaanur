@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\LmsAuth;
 use App\Support\StudentInformation;
+use App\Support\StudentSessionPool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,7 @@ class AuthController extends Controller
         $user = Auth::user();
         $user = LmsAuth::applyPostAuthRoleRules($user);
         Auth::setUser($user);
-        LmsAuth::syncRoleToSession($request, $user);
+        LmsAuth::syncRoleToSession($request, $user, 'web');
 
         return redirect()->intended(route(LmsAuth::dashboardRouteName($user)));
     }
@@ -83,12 +84,12 @@ class AuthController extends Controller
 
         if ($user->isStudent()) {
             $user = LmsAuth::applyPostAuthRoleRules($user);
+            $token = app(StudentSessionPool::class)->add($user);
             Auth::guard('student')->login($user);
-            $request->session()->regenerate();
-            Auth::guard('student')->setUser($user);
-            LmsAuth::syncRoleToSession($request, $user);
+            LmsAuth::syncRoleToSession($request, $user, 'student');
+            $request->session()->put('student_active_context', $token);
 
-            return redirect()->route('student.dashboard');
+            return redirect()->route('student.dashboard', student_route_params($token));
         }
 
         $user = LmsAuth::applyPostAuthRoleRules($user);
@@ -96,19 +97,19 @@ class AuthController extends Controller
         Auth::guard($guard)->login($user);
         $request->session()->regenerate();
         Auth::guard($guard)->setUser($user);
-        LmsAuth::syncRoleToSession($request, $user);
+        LmsAuth::syncRoleToSession($request, $user, $guard);
 
         return redirect()->route(LmsAuth::dashboardRouteName($user));
     }
 
     public function logout(Request $request)
     {
-        Auth::guard('admin')->logout();
-        Auth::guard('student')->logout();
         Auth::logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        if (! Auth::guard('admin')->check() && ! Auth::guard('student')->check()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return redirect()->route('home');
     }
@@ -116,15 +117,26 @@ class AuthController extends Controller
     public function claimAdmin(Request $request)
     {
         if (User::adminExists()) {
-            $fallback = Auth::user()->isAdmin() ? 'admin.dashboard' : 'student.dashboard';
+            $fallback = Auth::guard('admin')->check() ? 'admin.dashboard' : 'student.dashboard';
+
             return redirect()->route($fallback)->with('error', 'An admin already exists.');
         }
 
-        $user = Auth::user();
+        $pool = app(StudentSessionPool::class);
+        $token = $request->session()->get('student_active_context') ?? $pool->firstToken();
+        $user = $pool->userForToken($token) ?? Auth::guard('student')->user();
+
+        if (! $user) {
+            return redirect()->route('student.login');
+        }
+
         $user->update(['role' => User::ROLE_ADMIN]);
+        $pool->remove($token);
         Auth::guard('student')->logout();
+        $request->session()->forget('auth.role.student');
+        $request->session()->forget('student_active_context');
         Auth::guard('admin')->login($user);
-        LmsAuth::syncRoleToSession($request, $user);
+        LmsAuth::syncRoleToSession($request, $user, 'admin');
 
         return redirect()->route('admin.dashboard')->with('success', 'You now have admin access.');
     }

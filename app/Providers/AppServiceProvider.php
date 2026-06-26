@@ -7,6 +7,7 @@ use App\Models\LmsEnrollment;
 use App\Services\EnrollmentRequestService;
 use App\Services\LmsDashboardStatsService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,6 +30,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        View::composer('student.*', function () {
+            $params = student_route_params();
+            if ($params !== []) {
+                URL::defaults($params);
+            }
+        });
+
         View::composer('student.partials.sidebar-nav', function ($view) {
             if (! Auth::guard('student')->check()) {
                 return;

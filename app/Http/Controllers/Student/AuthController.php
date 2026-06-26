@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Support\LmsAuth;
+use App\Support\StudentSessionPool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -27,39 +29,60 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (! Student::where('email', $credentials['email'])->exists()) {
+        $student = Student::where('email', $credentials['email'])->first();
+
+        if ($student === null) {
             throw ValidationException::withMessages([
                 'email' => ['You are not registered yet. Please register first to continue.'],
             ]);
         }
 
-        if (! Auth::guard('student')->attempt($credentials, $request->boolean('remember'))) {
+        if (! Hash::check($credentials['password'], $student->password)) {
             throw ValidationException::withMessages([
                 'email' => [__('auth.failed')],
             ]);
         }
 
-        $request->session()->regenerate();
-        $user = Auth::guard('student')->user();
-        $user = LmsAuth::applyPostAuthRoleRules($user);
+        $user = LmsAuth::applyPostAuthRoleRules($student);
 
         if ($user->isAdmin()) {
-            Auth::guard('student')->logout();
-
             throw ValidationException::withMessages([
                 'email' => ['This account has admin access. Please sign in at the admin login page.'],
             ]);
         }
 
-        Auth::guard('student')->setUser($user);
-        LmsAuth::syncRoleToSession($request, $user);
+        $pool = app(StudentSessionPool::class);
+        $token = $pool->add($user);
 
-        return redirect()->intended(route('student.dashboard'));
+        Auth::guard('student')->login($user, $request->boolean('remember'));
+        LmsAuth::syncRoleToSession($request, $user, 'student');
+        $request->session()->put('student_active_context', $token);
+
+        return redirect()->intended(route('student.dashboard', student_route_params($token)));
     }
 
     public function logout(Request $request)
     {
-        LmsAuth::logoutGuard($request, 'student');
+        $pool = app(StudentSessionPool::class);
+        $token = $request->route('studentContext')
+            ?? $request->input('as')
+            ?? $request->session()->get('student_active_context');
+
+        $pool->remove($token);
+        Auth::guard('student')->logout();
+        $request->session()->forget('auth.role.student');
+        $request->session()->forget('student_active_context');
+
+        if ($pool->hasAny()) {
+            $nextToken = $pool->firstToken();
+
+            return redirect()->route('student.dashboard', student_route_params($nextToken));
+        }
+
+        if (! Auth::guard('admin')->check()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return redirect()->route('student.login');
     }

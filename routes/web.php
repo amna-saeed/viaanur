@@ -33,11 +33,12 @@ Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.s
 // Auth
 Route::get('/login', function () {
     return redirect()->route('student.login');
-})->name('login')->middleware('guest:student');
+})->name('login');
 
-Route::middleware('guest:student')->group(function () {
-    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+
+Route::middleware('guest:admin')->group(function () {
     // One-time admin creation without /register (enable ALLOW_WEB_ADMIN_SETUP=true in .env)
     Route::get('/setup-admin-account', [SetupAdminController::class, 'show'])->name('setup-admin');
     Route::post('/setup-admin-account', [SetupAdminController::class, 'store'])->name('setup-admin.store');
@@ -45,12 +46,12 @@ Route::middleware('guest:student')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
-    ->middleware('auth:admin,student');
+    ->middleware('auth:web');
 
 // Claim admin (when no admin exists yet - gets you access to admin/courses)
 Route::get('/claim-admin', [AuthController::class, 'claimAdmin'])
     ->name('claim-admin')
-    ->middleware('auth:admin,student');
+    ->middleware(['default.guard:student', 'auth:student']);
 
 require __DIR__.'/student.php';
 require __DIR__.'/admin.php';

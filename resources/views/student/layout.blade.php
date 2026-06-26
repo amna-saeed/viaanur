@@ -19,7 +19,7 @@
             <i class="bi bi-list" aria-hidden="true"></i>
             <span class="visually-hidden">Open navigation menu</span>
         </button>
-        <a href="{{ route('student.dashboard') }}" class="student-lms-mobilebar-brand">
+        <a href="{{ route('student.dashboard', student_route_params()) }}" class="student-lms-mobilebar-brand">
             <img src="{{ asset('assets/images/banner/logo-new.webp') }}" alt="ViaANur" width="120" height="32" decoding="async">
         </a>
         <span class="student-lms-avatar student-lms-avatar--sm" aria-hidden="true">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
@@ -40,7 +40,7 @@
 
     <aside class="student-lms-sidebar d-none d-lg-flex flex-column" aria-label="Student navigation">
         <div class="student-lms-brand">
-            <a href="{{ route('student.dashboard') }}" class="student-lms-brand__link">
+            <a href="{{ route('student.dashboard', student_route_params()) }}" class="student-lms-brand__link">
                 <img src="{{ asset('assets/images/banner/logo-new.webp') }}" alt="ViaANur" width="140" height="36" decoding="async">
             </a>
             <span class="student-lms-brand__badge">Student</span>
@@ -66,10 +66,27 @@
                 <h1 class="student-lms-topbar-title">@yield('page_heading', 'Dashboard')</h1>
             </div>
             <div class="student-lms-topbar__actions">
+                @if(!empty($studentSessionAccounts) && count($studentSessionAccounts) > 1)
+                    <div class="dropdown me-2">
+                        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Switch student
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            @foreach($studentSessionAccounts as $token => $account)
+                                <li>
+                                    <a class="dropdown-item {{ ($studentSessionToken ?? '') === $token ? 'active' : '' }}"
+                                       href="{{ route('student.dashboard', student_route_params($token)) }}">
+                                        {{ $account['name'] }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <span class="student-lms-topbar-meta d-none d-md-inline">
                     <i class="bi bi-person-circle" aria-hidden="true"></i> {{ auth()->user()->name }}
                 </span>
-                <form action="{{ route('student.logout') }}" method="POST" class="d-inline">
+                <form action="{{ route('student.logout', student_route_params()) }}" method="POST" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-outline-danger btn-sm student-lms-btn-signout">
                         <i class="bi bi-box-arrow-right" aria-hidden="true"></i>

@@ -33,9 +33,9 @@ class LmsAuth
         return $user->isAdmin() ? 'admin.dashboard' : 'student.dashboard';
     }
 
-    public static function syncRoleToSession(Request $request, User $user): void
+    public static function syncRoleToSession(Request $request, User $user, string $guard): void
     {
-        $request->session()->put('auth.role', $user->role);
+        $request->session()->put("auth.role.{$guard}", $user->role);
     }
 
     /**
@@ -44,6 +44,7 @@ class LmsAuth
     public static function logoutGuard(Request $request, string $guard): void
     {
         Auth::guard($guard)->logout();
+        $request->session()->forget("auth.role.{$guard}");
 
         $otherGuardsStillLoggedIn = collect(['admin', 'student'])
             ->reject(fn (string $name) => $name === $guard)

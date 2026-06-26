@@ -19,11 +19,6 @@
 <!-- Start Navbar Area -->
 @php
     $headerSignInUrl = route('student.login');
-    if (auth('admin')->check()) {
-        $headerSignInUrl = route('admin.dashboard');
-    } elseif (auth('student')->check()) {
-        $headerSignInUrl = route('student.dashboard');
-    }
 @endphp
 <div class="page-top-tagline">
     <div class="marquee">

@@ -58,16 +58,14 @@
                                 required autofocus>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <div class="auth-input-wrap">
-                            <i class="ri-lock-line auth-icon"></i>
-                            <input type="password" name="password" id="password"
-                                class="form-control auth-input"
-                                placeholder="••••••••"
-                                required>
-                        </div>
-                    </div>
+                    @include('partials.password-field-with-toggle', [
+                        'id' => 'password',
+                        'name' => 'password',
+                        'label' => 'Password',
+                        'placeholder' => '••••••••',
+                        'variant' => 'auth',
+                        'autocomplete' => 'current-password',
+                    ])
                     <div class="mb-4">
                         <div class="form-check">
                             <input type="checkbox" name="remember" id="remember"

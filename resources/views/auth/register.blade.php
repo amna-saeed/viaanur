@@ -58,18 +58,28 @@
                                             required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                                        <input type="password" name="password" id="password"
-                                            class="form-control reg-input"
-                                            placeholder="Create a strong password"
-                                            required>
+                                        @include('partials.password-field-with-toggle', [
+                                            'id' => 'password',
+                                            'name' => 'password',
+                                            'label' => 'Password',
+                                            'labelSuffix' => ' <span class="text-danger">*</span>',
+                                            'placeholder' => 'Create a strong password',
+                                            'variant' => 'reg',
+                                            'wrapperClass' => '',
+                                            'autocomplete' => 'new-password',
+                                        ])
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                                        <input type="password" name="password_confirmation" id="password_confirmation"
-                                            class="form-control reg-input"
-                                            placeholder="Repeat your password"
-                                            required>
+                                        @include('partials.password-field-with-toggle', [
+                                            'id' => 'password_confirmation',
+                                            'name' => 'password_confirmation',
+                                            'label' => 'Confirm Password',
+                                            'labelSuffix' => ' <span class="text-danger">*</span>',
+                                            'placeholder' => 'Repeat your password',
+                                            'variant' => 'reg',
+                                            'wrapperClass' => '',
+                                            'autocomplete' => 'new-password',
+                                        ])
                                     </div>
                                 </div>
                             </div>

@@ -36,7 +36,7 @@ class AuthController extends Controller
         $user = Auth::guard('admin')->user();
         $user = LmsAuth::applyPostAuthRoleRules($user);
         Auth::guard('admin')->setUser($user);
-        LmsAuth::syncRoleToSession($request, $user);
+        LmsAuth::syncRoleToSession($request, $user, 'admin');
 
         return redirect()->intended(route('admin.dashboard'));
     }

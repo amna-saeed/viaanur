@@ -12,12 +12,14 @@ class StudentInformation
         'other' => 'Other',
     ];
 
-    public const STUDENT_ID_NUMBER_RULE = 'digits:13';
+    public const PASSPORT_NUMBER_RULE = 'string|min:6|max:20|regex:/^[A-Za-z0-9]+$/';
 
     public static function validationMessages(): array
     {
         return [
-            'student_id_number.digits' => 'The ID card number must be exactly 13 digits.',
+            'student_id_number.regex' => 'The passport number may only contain letters and numbers.',
+            'student_id_number.min' => 'The passport number must be at least 6 characters.',
+            'student_id_number.max' => 'The passport number may not be greater than 20 characters.',
         ];
     }
 
@@ -30,7 +32,7 @@ class StudentInformation
         }
 
         return [
-            'student_id_number' => ['required', self::STUDENT_ID_NUMBER_RULE, $studentIdRule],
+            'student_id_number' => ['required', self::PASSPORT_NUMBER_RULE, $studentIdRule],
             'date_of_birth' => ['required', 'date', 'before_or_equal:today'],
             'gender' => ['required', Rule::in(array_keys(self::GENDER_OPTIONS))],
             'school_name' => ['nullable', 'string', 'max:255'],
@@ -44,7 +46,7 @@ class StudentInformation
     public static function applicationRules(): array
     {
         return [
-            'student_id_number' => ['required', self::STUDENT_ID_NUMBER_RULE],
+            'student_id_number' => ['required', self::PASSPORT_NUMBER_RULE],
             'date_of_birth' => ['required', 'date', 'before_or_equal:today'],
             'gender' => ['required', Rule::in(array_keys(self::GENDER_OPTIONS))],
             'school_name' => ['nullable', 'string', 'max:255'],

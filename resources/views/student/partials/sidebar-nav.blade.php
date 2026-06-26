@@ -1,23 +1,23 @@
-<a class="student-lms-nav-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}" href="{{ route('student.dashboard') }}">
+<a class="student-lms-nav-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}" href="{{ route('student.dashboard', student_route_params()) }}">
     <span class="student-lms-nav-link__icon" aria-hidden="true"><i class="bi bi-grid-1x2-fill"></i></span>
     <span class="student-lms-nav-link__label">Dashboard</span>
     @if(!empty($navHighlightCount))
         <span class="student-lms-nav-link__badge" aria-label="{{ $navHighlightCount }} new updates">{{ $navHighlightCount }}</span>
     @endif
 </a>
-<a class="student-lms-nav-link {{ request()->routeIs('student.my-courses') ? 'active' : '' }}" href="{{ route('student.my-courses') }}">
+<a class="student-lms-nav-link {{ request()->routeIs('student.my-courses') ? 'active' : '' }}" href="{{ route('student.my-courses', student_route_params()) }}">
     <span class="student-lms-nav-link__icon" aria-hidden="true"><i class="bi bi-journal-bookmark-fill"></i></span>
     <span class="student-lms-nav-link__label">My courses</span>
 </a>
-<a class="student-lms-nav-link {{ request()->routeIs('student.attendance') ? 'active' : '' }}" href="{{ route('student.attendance') }}">
+<a class="student-lms-nav-link {{ request()->routeIs('student.attendance') ? 'active' : '' }}" href="{{ route('student.attendance', student_route_params()) }}">
     <span class="student-lms-nav-link__icon" aria-hidden="true"><i class="bi bi-calendar-check-fill"></i></span>
     <span class="student-lms-nav-link__label">Attendance</span>
 </a>
-<a class="student-lms-nav-link {{ request()->routeIs('student.progress') ? 'active' : '' }}" href="{{ route('student.progress') }}">
+<a class="student-lms-nav-link {{ request()->routeIs('student.progress') ? 'active' : '' }}" href="{{ route('student.progress', student_route_params()) }}">
     <span class="student-lms-nav-link__icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
     <span class="student-lms-nav-link__label">Progress</span>
 </a>
-<a class="student-lms-nav-link {{ request()->routeIs('student.profile') ? 'active' : '' }}" href="{{ route('student.profile') }}">
+<a class="student-lms-nav-link {{ request()->routeIs('student.profile') ? 'active' : '' }}" href="{{ route('student.profile', student_route_params()) }}">
     <span class="student-lms-nav-link__icon" aria-hidden="true"><i class="bi bi-person-vcard-fill"></i></span>
     <span class="student-lms-nav-link__label">My profile</span>
 </a>

@@ -12,33 +12,56 @@ class PromoteConfiguredAdmin
     /**
      * Admin-only site: everyone is admin; student dashboard URL redirects to admin.
      * Or: promote users whose email is in ADMIN_EMAILS.
+     *
+     * Only evaluates the guard that matches the current route area so admin
+     * sessions never affect public/student auth checks.
      */
     public function handle(Request $request, Closure $next)
     {
-        if (! Auth::check()) {
+        $guard = $this->guardForRequest($request);
+
+        if ($guard === null || ! Auth::guard($guard)->check()) {
             return $next($request);
         }
 
-        $user = Auth::user();
+        $user = Auth::guard($guard)->user();
 
         if (config('viaanoor.admin_only_mode')) {
             if (! $user->isAdmin()) {
                 $user->update(['role' => User::ROLE_ADMIN]);
-                Auth::setUser($user->fresh());
+                Auth::guard($guard)->setUser($user->fresh());
             }
             if ($request->routeIs('student.dashboard')) {
                 return redirect()->route('admin.dashboard');
             }
+
             return $next($request);
         }
 
         if ($user->promoteIfConfiguredAdminEmail()) {
-            Auth::setUser($user->fresh());
+            Auth::guard($guard)->setUser($user->fresh());
             if ($request->routeIs('student.dashboard')) {
                 return redirect()->route('admin.dashboard');
             }
         }
 
         return $next($request);
+    }
+
+    private function guardForRequest(Request $request): ?string
+    {
+        if ($request->is('student/*') || $request->routeIs('student.*')) {
+            return 'student';
+        }
+
+        if ($request->is('admin/*') || $request->routeIs('admin.*')) {
+            return 'admin';
+        }
+
+        if (Auth::guard('web')->check()) {
+            return 'web';
+        }
+
+        return null;
     }
 }

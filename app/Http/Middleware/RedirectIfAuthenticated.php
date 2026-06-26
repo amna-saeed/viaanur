@@ -23,9 +23,15 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                $user = Auth::guard($guard)->user();
+                if ($guard === 'admin') {
+                    $route = 'admin.dashboard';
+                } elseif ($guard === 'student') {
+                    $route = 'student.dashboard';
+                } else {
+                    $route = LmsAuth::dashboardRouteName(Auth::guard($guard)->user());
+                }
 
-                return redirect()->route(LmsAuth::dashboardRouteName($user));
+                return redirect()->route($route);
             }
         }
 
