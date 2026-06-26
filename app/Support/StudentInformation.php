@@ -12,7 +12,7 @@ class StudentInformation
         'other' => 'Other',
     ];
 
-    public const PASSPORT_NUMBER_RULE = 'string|min:6|max:20|regex:/^[A-Za-z0-9]+$/';
+    public const PASSPORT_NUMBER_RULES = ['string', 'min:6', 'max:20', 'regex:/^[A-Za-z0-9]+$/'];
 
     public static function validationMessages(): array
     {
@@ -32,7 +32,7 @@ class StudentInformation
         }
 
         return [
-            'student_id_number' => ['required', self::PASSPORT_NUMBER_RULE, $studentIdRule],
+            'student_id_number' => array_merge(['required'], self::PASSPORT_NUMBER_RULES, [$studentIdRule]),
             'date_of_birth' => ['required', 'date', 'before_or_equal:today'],
             'gender' => ['required', Rule::in(array_keys(self::GENDER_OPTIONS))],
             'school_name' => ['nullable', 'string', 'max:255'],
@@ -46,7 +46,7 @@ class StudentInformation
     public static function applicationRules(): array
     {
         return [
-            'student_id_number' => ['required', self::PASSPORT_NUMBER_RULE],
+            'student_id_number' => array_merge(['required'], self::PASSPORT_NUMBER_RULES),
             'date_of_birth' => ['required', 'date', 'before_or_equal:today'],
             'gender' => ['required', Rule::in(array_keys(self::GENDER_OPTIONS))],
             'school_name' => ['nullable', 'string', 'max:255'],
