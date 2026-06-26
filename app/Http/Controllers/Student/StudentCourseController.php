@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Student\Concerns\ResolvesRouteModels;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\LmsEnrollment;
@@ -15,8 +16,11 @@ use Illuminate\View\View;
 
 class StudentCourseController extends Controller
 {
-    public function show(Course $course): View
+    use ResolvesRouteModels;
+
+    public function show($course): View
     {
+        $course = $this->resolveCourse($course);
         $user = auth()->user();
         $this->ensureEnrolled($user->id, $course);
 
@@ -44,8 +48,10 @@ class StudentCourseController extends Controller
         return view('student.courses.show', compact('course', 'attemptsByQuiz', 'submittedCounts'));
     }
 
-    public function showLesson(Course $course, Lesson $lesson, LectureAttendanceService $lectureAttendance): View
+    public function showLesson($course, $lesson, LectureAttendanceService $lectureAttendance): View
     {
+        $course = $this->resolveCourse($course);
+        $lesson = $this->resolveLesson($lesson);
         $this->ensureEnrolled(auth()->id(), $course);
         $this->ensureLessonBelongsToCourse($lesson, $course);
 
@@ -56,8 +62,10 @@ class StudentCourseController extends Controller
         return view('student.courses.lesson', compact('course', 'lesson'));
     }
 
-    public function showQuiz(Course $course, Quiz $quiz)
+    public function showQuiz($course, $quiz)
     {
+        $course = $this->resolveCourse($course);
+        $quiz = $this->resolveQuiz($quiz);
         $user = auth()->user();
         $this->ensureEnrolled($user->id, $course);
         $this->ensureQuizBelongsToCourse($quiz, $course);
@@ -82,8 +90,10 @@ class StudentCourseController extends Controller
         return view('student.courses.quiz', compact('course', 'quiz', 'attempts', 'submittedCount', 'canAttempt'));
     }
 
-    public function startQuiz(Request $request, Course $course, Quiz $quiz): RedirectResponse
+    public function startQuiz(Request $request, $course, $quiz): RedirectResponse
     {
+        $course = $this->resolveCourse($course);
+        $quiz = $this->resolveQuiz($quiz);
         $user = $request->user();
         $this->ensureEnrolled($user->id, $course);
         $this->ensureQuizBelongsToCourse($quiz, $course);
@@ -124,8 +134,11 @@ class StudentCourseController extends Controller
         return redirect()->route('student.courses.quizzes.take', [$course, $quiz, $attempt]);
     }
 
-    public function takeQuiz(Course $course, Quiz $quiz, QuizAttempt $attempt)
+    public function takeQuiz($course, $quiz, $attempt)
     {
+        $course = $this->resolveCourse($course);
+        $quiz = $this->resolveQuiz($quiz);
+        $attempt = $this->resolveAttempt($attempt);
         $user = auth()->user();
         $this->ensureEnrolled($user->id, $course);
         $this->ensureQuizBelongsToCourse($quiz, $course);
@@ -147,8 +160,11 @@ class StudentCourseController extends Controller
         return view('student.courses.quiz-take', compact('course', 'quiz', 'attempt'));
     }
 
-    public function submitQuiz(Request $request, Course $course, Quiz $quiz, QuizAttempt $attempt): RedirectResponse
+    public function submitQuiz(Request $request, $course, $quiz, $attempt): RedirectResponse
     {
+        $course = $this->resolveCourse($course);
+        $quiz = $this->resolveQuiz($quiz);
+        $attempt = $this->resolveAttempt($attempt);
         $user = $request->user();
         $this->ensureEnrolled($user->id, $course);
         $this->ensureQuizBelongsToCourse($quiz, $course);
@@ -202,8 +218,11 @@ class StudentCourseController extends Controller
                 : 'Quiz submitted successfully.');
     }
 
-    public function quizResult(Course $course, Quiz $quiz, QuizAttempt $attempt)
+    public function quizResult($course, $quiz, $attempt)
     {
+        $course = $this->resolveCourse($course);
+        $quiz = $this->resolveQuiz($quiz);
+        $attempt = $this->resolveAttempt($attempt);
         $user = auth()->user();
         $this->ensureEnrolled($user->id, $course);
         $this->ensureQuizBelongsToCourse($quiz, $course);

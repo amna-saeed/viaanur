@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Student\Concerns\ResolvesRouteModels;
 use App\Models\Course;
 use App\Models\LeaveRequest;
 use App\Models\LmsEnrollment;
@@ -17,6 +18,8 @@ use Illuminate\View\View;
 
 class StudentDashboardController extends Controller
 {
+    use ResolvesRouteModels;
+
     public function index(LmsDashboardStatsService $lmsStats): View
     {
         $user = auth()->user();
@@ -154,8 +157,9 @@ class StudentDashboardController extends Controller
         ));
     }
 
-    public function enroll(Request $request, Course $course): RedirectResponse
+    public function enroll(Request $request, $course): RedirectResponse
     {
+        $course = $this->resolveCourse($course);
         if (! $course->is_published) {
             return StudentRoute::redirect('student.dashboard')->with('error', 'This course is not available.');
         }

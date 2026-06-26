@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Course;
+use App\Models\Lesson;
+use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -35,6 +39,11 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Route::model('course', Course::class);
+        Route::model('lesson', Lesson::class);
+        Route::model('quiz', Quiz::class);
+        Route::model('attempt', QuizAttempt::class);
+
         $this->configureRateLimiting();
 
         $this->routes(function () {
