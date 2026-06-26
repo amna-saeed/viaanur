@@ -66,23 +66,6 @@
                 <h1 class="student-lms-topbar-title">@yield('page_heading', 'Dashboard')</h1>
             </div>
             <div class="student-lms-topbar__actions">
-                @if(!empty($studentSessionAccounts) && count($studentSessionAccounts) > 1)
-                    <div class="dropdown me-2">
-                        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Switch student
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            @foreach($studentSessionAccounts as $token => $account)
-                                <li>
-                                    <a class="dropdown-item {{ ($studentSessionToken ?? '') === $token ? 'active' : '' }}"
-                                       href="{{ route('student.dashboard', student_route_params($token)) }}">
-                                        {{ $account['name'] }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
                 <span class="student-lms-topbar-meta d-none d-md-inline">
                     <i class="bi bi-person-circle" aria-hidden="true"></i> {{ auth()->user()->name }}
                 </span>
