@@ -84,5 +84,24 @@ class AppServiceProvider extends ServiceProvider
                 'enrollmentAlertsApiUrl' => route('admin.dashboard.api.enrollment-alerts'),
             ]);
         });
+
+        View::composer('teacher.partials.sidebar-nav', function ($view) {
+            if (! Auth::guard('teacher')->check()) {
+                return;
+            }
+
+            $scope = app(\App\Services\TeacherScopeService::class);
+            $studentIds = $scope->studentIds();
+            $pendingLeave = 0;
+
+            if ($studentIds->isNotEmpty() && \Illuminate\Support\Facades\Schema::hasTable('leave_requests')) {
+                $pendingLeave = LeaveRequest::query()
+                    ->whereIn('user_id', $studentIds)
+                    ->where('status', LeaveRequest::STATUS_PENDING)
+                    ->count();
+            }
+
+            $view->with('pendingLeaveCount', $pendingLeave);
+        });
     }
 }

@@ -23,6 +23,14 @@
                 @if($teacher->department)
                     <p class="mb-0 text-white-50"><i class="bi bi-briefcase me-2"></i>{{ $teacher->department }}</p>
                 @endif
+                <p class="mb-0 mt-2">
+                    @if($teacher->user_id)
+                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Teacher dashboard login enabled</span>
+                        <a href="{{ route('teacher.login') }}" class="btn btn-sm btn-light ms-2" target="_blank" rel="noopener">Open teacher login</a>
+                    @else
+                        <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i>No login — edit teacher and set a password</span>
+                    @endif
+                </p>
             </div>
         </div>
     </div>

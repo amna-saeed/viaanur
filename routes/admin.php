@@ -40,7 +40,7 @@ Route::prefix('admin')->name('admin.')->middleware('default.guard:admin')->group
         Route::get('/students/{student}/assign-subject', [AdminStudentController::class, 'assignSubjectForm'])->name('students.assign-subject');
         Route::post('/students/{student}/assign-subject', [AdminStudentController::class, 'assignSubject'])->name('students.store-subject');
         Route::delete('/students/{student}/subjects/{subject}', [AdminStudentController::class, 'removeSubject'])->name('students.remove-subject');
-
+        
         Route::get('/courses', [AdminCourseController::class, 'index'])->name('courses.index');
         Route::get('/courses/create', [AdminCourseController::class, 'create'])->name('courses.create');
         Route::post('/courses', [AdminCourseController::class, 'store'])->name('courses.store');

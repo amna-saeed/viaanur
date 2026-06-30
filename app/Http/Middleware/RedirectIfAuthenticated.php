@@ -27,6 +27,8 @@ class RedirectIfAuthenticated
                     $route = 'admin.dashboard';
                 } elseif ($guard === 'student') {
                     $route = 'student.dashboard';
+                } elseif ($guard === 'teacher') {
+                    $route = 'teacher.dashboard';
                 } else {
                     $route = LmsAuth::dashboardRouteName(Auth::guard($guard)->user());
                 }

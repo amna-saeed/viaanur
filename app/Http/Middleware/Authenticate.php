@@ -40,6 +40,10 @@ class Authenticate extends Middleware
             return route('student.login');
         }
 
+        if (in_array('teacher', $this->guards, true)) {
+            return route('teacher.login');
+        }
+
         return route('login');
     }
 }

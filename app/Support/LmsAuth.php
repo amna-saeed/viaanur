@@ -30,7 +30,15 @@ class LmsAuth
 
     public static function dashboardRouteName(User $user): string
     {
-        return $user->isAdmin() ? 'admin.dashboard' : 'student.dashboard';
+        if ($user->isAdmin()) {
+            return 'admin.dashboard';
+        }
+
+        if ($user->isTeacher()) {
+            return 'teacher.dashboard';
+        }
+
+        return 'student.dashboard';
     }
 
     public static function syncRoleToSession(Request $request, User $user, string $guard): void
@@ -46,7 +54,7 @@ class LmsAuth
         Auth::guard($guard)->logout();
         $request->session()->forget("auth.role.{$guard}");
 
-        $otherGuardsStillLoggedIn = collect(['admin', 'student'])
+        $otherGuardsStillLoggedIn = collect(['admin', 'student', 'teacher'])
             ->reject(fn (string $name) => $name === $guard)
             ->contains(fn (string $name) => Auth::guard($name)->check());
 

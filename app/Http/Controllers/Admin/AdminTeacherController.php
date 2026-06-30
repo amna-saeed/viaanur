@@ -6,10 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Teacher;
 use App\Models\Subject;
 use App\Models\Course;
+use App\Services\TeacherAccountService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class AdminTeacherController extends Controller
 {
+    public function __construct(private TeacherAccountService $teacherAccounts)
+    {
+    }
     public function index(Request $request)
     {
         $query = Teacher::orderBy('name');
@@ -34,15 +40,27 @@ class AdminTeacherController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:teachers,email',
+            'email' => 'required|email|max:255|unique:teachers,email|unique:users,email',
             'phone' => 'nullable|string|max:20',
             'qualification' => 'nullable|string|max:255',
             'department' => 'nullable|string|max:255',
             'bio' => 'nullable|string',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
-        Teacher::create($request->all());
-        return redirect()->route('admin.teachers.index')->with('success', 'Teacher added successfully.');
+        $teacher = DB::transaction(function () use ($request) {
+            $teacher = Teacher::create($request->only([
+                'name', 'email', 'phone', 'qualification', 'department', 'bio',
+            ]));
+
+            $this->teacherAccounts->createOrUpdateAccount($teacher, $request->only([
+                'name', 'email', 'phone',
+            ]), $request->password);
+
+            return $teacher;
+        });
+
+        return redirect()->route('admin.teachers.show', $teacher)->with('success', 'Teacher added with dashboard login access.');
     }
 
     public function show(Teacher $teacher)
@@ -59,22 +77,40 @@ class AdminTeacherController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:teachers,email,' . $teacher->id,
+            'email' => [
+                'required', 'email', 'max:255',
+                Rule::unique('teachers', 'email')->ignore($teacher->id),
+                Rule::unique('users', 'email')->ignore($teacher->user_id),
+            ],
             'phone' => 'nullable|string|max:20',
             'qualification' => 'nullable|string|max:255',
             'department' => 'nullable|string|max:255',
             'bio' => 'nullable|string',
             'status' => 'required|in:active,inactive',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        $teacher->update($request->all());
+        DB::transaction(function () use ($request, $teacher) {
+            $teacher->update($request->only([
+                'name', 'email', 'phone', 'qualification', 'department', 'bio', 'status',
+            ]));
+
+            $this->teacherAccounts->createOrUpdateAccount($teacher, $request->only([
+                'name', 'email', 'phone',
+            ]), $request->filled('password') ? $request->password : null);
+        });
+
         return redirect()->route('admin.teachers.show', $teacher)->with('success', 'Teacher updated successfully.');
     }
 
     public function destroy(Teacher $teacher)
     {
-        $teacher->delete();
-        return redirect()->back()->with('success', 'Teacher deleted successfully.');
+        DB::transaction(function () use ($teacher) {
+            $this->teacherAccounts->deleteAccount($teacher);
+            $teacher->delete();
+        });
+
+        return redirect()->route('admin.teachers.index')->with('success', 'Teacher deleted successfully.');
     }
 
     public function assignSubjectForm(Teacher $teacher)

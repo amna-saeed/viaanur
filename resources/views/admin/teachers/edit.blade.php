@@ -54,6 +54,33 @@
                 </div>
             </div>
 
+            <fieldset class="mt-4 mb-0">
+                <legend class="h6 text-uppercase text-muted fw-semibold mb-3" style="font-size:.72rem;letter-spacing:.06em;">Teacher Portal Login</legend>
+                <p class="text-muted small mb-3">Leave password fields blank to keep the current login password.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="password" class="form-label">New Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" autocomplete="new-password">
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password" aria-label="Show password">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="password_confirmation" class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" id="password_confirmation" name="password_confirmation" autocomplete="new-password">
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_confirmation" aria-label="Show password">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        @error('password_confirmation')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+            </fieldset>
+
             <div class="row mt-3">
                 <div class="col-md-12">
                     <label for="bio" class="form-label">Bio</label>
@@ -72,3 +99,22 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.querySelectorAll('.toggle-password').forEach(function (button) {
+    button.addEventListener('click', function () {
+        var input = document.getElementById(button.getAttribute('data-target'));
+        if (!input) return;
+        var icon = button.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    });
+});
+</script>
+@endpush

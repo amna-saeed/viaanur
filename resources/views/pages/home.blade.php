@@ -439,7 +439,7 @@
         .vn-card-wa h3 { font-size: 12px; font-weight: 700; color: #fff; margin: 0 0 3px; line-height: 1.3; }
         .vn-card-wa span { font-size: 10px; color: rgba(255,255,255,.55); }
 
-        /* Experience badge — bottom right */
+        /* Quality badge — bottom right */
         .vn-card-exp {
             bottom: 52px; right: -22px;
             padding: 14px 18px;
@@ -552,8 +552,8 @@
                         </div>
                         <div class="vn-stat-sep"></div>
                         <div>
-                            <div class="vn-stat-num">10+</div>
-                            <div class="vn-stat-lbl">Yrs Experience</div>
+                            <div class="vn-stat-num">15+</div>
+                            <div class="vn-stat-lbl">Expert Tutors</div>
                         </div>
                         <div class="vn-stat-sep"></div>
                         <div>
@@ -600,10 +600,10 @@
                             </div>
                         </a>
 
-                        <!-- Floating: experience badge (bottom-right) -->
+                        <!-- Floating: quality badge (bottom-right) -->
                         <div class="vn-card vn-card-exp">
-                            <div class="exp-num">10+</div>
-                            <div class="exp-lbl">Years of<br>Excellence</div>
+                            <div class="exp-num">100%</div>
+                            <div class="exp-lbl">Personalised<br>Learning</div>
                         </div>
 
                     </div>
@@ -804,9 +804,9 @@
                                 <div class="experience-info d-flex align-items-center justify-content-between" data-cue="slideInUp">
                                     <div class="content">
                                         <h3>
-                                            <span class="counter">10+</span>
+                                            <span class="counter">15+</span>
                                         </h3>
-                                        <p>+years experience</p>
+                                        <p>expert tutors</p>
                                     </div>
                                     <a href="about.html" class="icon">
                                         <i class="ph ph-arrow-up-right"></i>

@@ -81,6 +81,11 @@
                     <p class="mt-4 mb-0 text-center text-muted small">
                         Don't have an account? <a href="{{ route('register') }}" class="auth-link">Create one now</a>
                     </p>
+                    <p class="mt-3 mb-0 text-center small text-muted">
+                        <a href="{{ route('admin.login') }}" class="auth-link">Admin sign in</a>
+                        <span class="mx-1">·</span>
+                        <a href="{{ route('teacher.login') }}" class="auth-link">Teacher sign in</a>
+                    </p>
                     @if (config('viaanoor.allow_web_admin_setup'))
                         <p class="mt-2 mb-0 text-center small">
                             <a href="{{ route('setup-admin') }}" class="text-muted">Create admin account</a>

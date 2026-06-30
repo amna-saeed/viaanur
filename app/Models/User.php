@@ -51,6 +51,11 @@ class User extends Authenticatable
         return $this->hasOne(StudentProfile::class, 'user_id');
     }
 
+    public function teacherProfile()
+    {
+        return $this->hasOne(Teacher::class, 'user_id');
+    }
+
     public function assignedSubjects()
     {
         return $this->belongsToMany(Subject::class, 'student_subject', 'user_id', 'subject_id')
