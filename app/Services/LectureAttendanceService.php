@@ -7,9 +7,14 @@ use App\Models\LmsEnrollment;
 use App\Models\StudentLessonAttendance;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class LectureAttendanceService
 {
+    private function lectureAttendanceTableExists(): bool
+    {
+        return Schema::hasTable('student_lesson_attendances');
+    }
     /**
      * @return Collection<int, array{lesson_id: int, title: string, course_title: string, attended: bool, status_message: string, attended_at: ?\Illuminate\Support\Carbon}>
      */
@@ -35,11 +40,13 @@ class LectureAttendanceService
             return collect();
         }
 
-        $attendanceByLesson = StudentLessonAttendance::query()
-            ->where('user_id', $student->id)
-            ->whereIn('lesson_id', $lessons->pluck('id'))
-            ->get()
-            ->keyBy('lesson_id');
+        $attendanceByLesson = $this->lectureAttendanceTableExists()
+            ? StudentLessonAttendance::query()
+                ->where('user_id', $student->id)
+                ->whereIn('lesson_id', $lessons->pluck('id'))
+                ->get()
+                ->keyBy('lesson_id')
+            : collect();
 
         return $lessons->map(function (Lesson $lesson) use ($attendanceByLesson) {
             $attendance = $attendanceByLesson->get($lesson->id);
@@ -60,6 +67,10 @@ class LectureAttendanceService
 
     public function markAttended(int $userId, int $lessonId): void
     {
+        if (! $this->lectureAttendanceTableExists()) {
+            return;
+        }
+
         StudentLessonAttendance::query()->updateOrCreate(
             [
                 'user_id' => $userId,

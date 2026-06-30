@@ -11,9 +11,44 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AdminAttendanceService
 {
+    private function lectureAttendanceTableExists(): bool
+    {
+        return Schema::hasTable('student_lesson_attendances');
+    }
+
+    private function attendanceRecordsTableExists(): bool
+    {
+        return Schema::hasTable('attendance_records');
+    }
+
+    private function leaveRequestsTableExists(): bool
+    {
+        return Schema::hasTable('leave_requests');
+    }
+
+    /**
+     * @param  Collection<int, int>|array<int, int>  $userIds
+     * @return Collection<int|string, int>
+     */
+    private function attendedLessonCountsByUser($userIds): Collection
+    {
+        $userIds = collect($userIds);
+
+        if (! $this->lectureAttendanceTableExists() || $userIds->isEmpty()) {
+            return collect();
+        }
+
+        return StudentLessonAttendance::query()
+            ->whereIn('user_id', $userIds)
+            ->whereNotNull('attended_at')
+            ->selectRaw('user_id, count(*) as cnt')
+            ->groupBy('user_id')
+            ->pluck('cnt', 'user_id');
+    }
     /**
      * @return array<string, int|float|null>
      */
@@ -41,21 +76,18 @@ class AdminAttendanceService
         }
 
         $assignedByUser = $this->assignedLessonCounts($studentIds);
-        $attendedByUser = StudentLessonAttendance::query()
-            ->whereIn('user_id', $studentIds)
-            ->whereNotNull('attended_at')
-            ->selectRaw('user_id, count(*) as cnt')
-            ->groupBy('user_id')
-            ->pluck('cnt', 'user_id');
+        $attendedByUser = $this->attendedLessonCountsByUser($studentIds);
 
         $totalAssigned = (int) $assignedByUser->sum();
         $totalAttended = (int) $attendedByUser->sum();
 
-        $recordStats = AttendanceRecord::query()
-            ->whereIn('user_id', $studentIds)
-            ->selectRaw('status, count(*) as cnt')
-            ->groupBy('status')
-            ->pluck('cnt', 'status');
+        $recordStats = $this->attendanceRecordsTableExists()
+            ? AttendanceRecord::query()
+                ->whereIn('user_id', $studentIds)
+                ->selectRaw('status, count(*) as cnt')
+                ->groupBy('status')
+                ->pluck('cnt', 'status')
+            : collect();
 
         return [
             'student_count' => $studentCount,
@@ -71,9 +103,11 @@ class AdminAttendanceService
             'absent_count' => (int) ($recordStats[AttendanceRecord::STATUS_ABSENT] ?? 0),
             'late_count' => (int) ($recordStats[AttendanceRecord::STATUS_LATE] ?? 0),
             'excused_count' => (int) ($recordStats[AttendanceRecord::STATUS_EXCUSED] ?? 0),
-            'pending_leave_count' => LeaveRequest::query()
-                ->where('status', LeaveRequest::STATUS_PENDING)
-                ->count(),
+            'pending_leave_count' => $this->leaveRequestsTableExists()
+                ? LeaveRequest::query()
+                    ->where('status', LeaveRequest::STATUS_PENDING)
+                    ->count()
+                : 0,
         ];
     }
 
@@ -132,25 +166,24 @@ class AdminAttendanceService
         $userIds = $students->pluck('id');
 
         $assignedByUser = $this->assignedLessonCounts($userIds);
-        $attendedByUser = StudentLessonAttendance::query()
-            ->whereIn('user_id', $userIds)
-            ->whereNotNull('attended_at')
-            ->selectRaw('user_id, count(*) as cnt')
-            ->groupBy('user_id')
-            ->pluck('cnt', 'user_id');
+        $attendedByUser = $this->attendedLessonCountsByUser($userIds);
 
-        $recordsByUser = AttendanceRecord::query()
-            ->whereIn('user_id', $userIds)
-            ->orderByDesc('record_date')
-            ->get()
-            ->groupBy('user_id');
+        $recordsByUser = $this->attendanceRecordsTableExists()
+            ? AttendanceRecord::query()
+                ->whereIn('user_id', $userIds)
+                ->orderByDesc('record_date')
+                ->get()
+                ->groupBy('user_id')
+            : collect();
 
-        $pendingLeaveByUser = LeaveRequest::query()
-            ->whereIn('user_id', $userIds)
-            ->where('status', LeaveRequest::STATUS_PENDING)
-            ->selectRaw('user_id, count(*) as cnt')
-            ->groupBy('user_id')
-            ->pluck('cnt', 'user_id');
+        $pendingLeaveByUser = $this->leaveRequestsTableExists()
+            ? LeaveRequest::query()
+                ->whereIn('user_id', $userIds)
+                ->where('status', LeaveRequest::STATUS_PENDING)
+                ->selectRaw('user_id, count(*) as cnt')
+                ->groupBy('user_id')
+                ->pluck('cnt', 'user_id')
+            : collect();
 
         $students->each(function (User $student) use (
             $assignedByUser,
