@@ -3,18 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Subject;
 use App\Models\User;
 use App\Services\LectureAttendanceService;
+use App\Services\StudentSubjectAssignmentService;
 use App\Support\StudentInformation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use InvalidArgumentException;
 
 class AdminStudentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with('studentProfile')
+        $query = User::with(['studentProfile', 'assignedSubjects'])
             ->where('role', User::ROLE_STUDENT)
             ->latest();
 
@@ -70,11 +73,62 @@ class AdminStudentController extends Controller
     {
         $this->ensureStudent($student);
 
-        $student->loadMissing(['studentProfile', 'lmsEnrollments', 'enrolledCourses.quizzes', 'quizAttempts']);
+        $student->loadMissing(['studentProfile', 'lmsEnrollments', 'enrolledCourses.quizzes', 'quizAttempts', 'assignedSubjects.course', 'assignedSubjects.teacher']);
         $genderOptions = StudentInformation::GENDER_OPTIONS;
         $lectureAttendanceItems = $lectureAttendance->assignedLecturesFor($student);
+        $assignedSubjects = $student->assignedSubjects;
 
-        return view('admin.students.show', compact('student', 'genderOptions', 'lectureAttendanceItems'));
+        return view('admin.students.show', compact('student', 'genderOptions', 'lectureAttendanceItems', 'assignedSubjects'));
+    }
+
+    public function assignSubjectForm(User $student, StudentSubjectAssignmentService $subjectAssignments)
+    {
+        $this->ensureStudent($student);
+
+        $assignedSubjects = $subjectAssignments->assignedSubjectsFor($student);
+        $availableSubjects = $subjectAssignments->availableSubjectsFor($student);
+
+        return view('admin.students.assign-subject', compact('student', 'assignedSubjects', 'availableSubjects'));
+    }
+
+    public function assignSubject(Request $request, User $student, StudentSubjectAssignmentService $subjectAssignments)
+    {
+        $this->ensureStudent($student);
+
+        $validated = $request->validate([
+            'subject_id' => ['required', 'exists:subjects,id'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        try {
+            $subject = $subjectAssignments->assign($student, (int) $validated['subject_id'], $validated['notes'] ?? null);
+        } catch (InvalidArgumentException $exception) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $exception->getMessage());
+        }
+
+        return redirect()
+            ->route('admin.students.assign-subject', $student)
+            ->with('success', $subject->name.' assigned to '.$student->name.' successfully.');
+    }
+
+    public function removeSubject(User $student, Subject $subject, StudentSubjectAssignmentService $subjectAssignments)
+    {
+        $this->ensureStudent($student);
+
+        if (! $student->assignedSubjects()->where('subjects.id', $subject->id)->exists()) {
+            return redirect()
+                ->back()
+                ->with('error', 'This subject is not assigned to the student.');
+        }
+
+        $subjectAssignments->remove($student, $subject);
+
+        return redirect()
+            ->back()
+            ->with('success', $subject->name.' removed from '.$student->name.'.');
     }
 
     public function edit(User $student)

@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\AdminTeacherController;
 use App\Http\Controllers\Admin\AdminApplicationController;
 use App\Http\Controllers\Admin\AdminEnrollmentController;
 use App\Http\Controllers\Admin\AdminLeaveRequestController;
+use App\Http\Controllers\Admin\AdminSettingsController;
+use App\Http\Controllers\Admin\AdminAttendanceController;
 
 Route::prefix('admin')->name('admin.')->middleware('default.guard:admin')->group(function () {
     Route::middleware('guest:admin')->group(function () {
@@ -28,12 +30,16 @@ Route::prefix('admin')->name('admin.')->middleware('default.guard:admin')->group
         Route::post('/leave-requests/{leaveRequest}/reject', [AdminLeaveRequestController::class, 'reject'])->name('leave-requests.reject');
 
         Route::get('/students', [AdminStudentController::class, 'index'])->name('students.index');
+        Route::get('/attendance', [AdminAttendanceController::class, 'index'])->name('attendance.index');
         Route::get('/students/create', [AdminStudentController::class, 'create'])->name('students.create');
         Route::post('/students', [AdminStudentController::class, 'store'])->name('students.store');
         Route::get('/students/{student}', [AdminStudentController::class, 'show'])->name('students.show');
         Route::get('/students/{student}/edit', [AdminStudentController::class, 'edit'])->name('students.edit');
         Route::put('/students/{student}', [AdminStudentController::class, 'update'])->name('students.update');
         Route::put('/students/{student}/profile-records', [AdminStudentController::class, 'updateProfileRecords'])->name('students.profile-records.update');
+        Route::get('/students/{student}/assign-subject', [AdminStudentController::class, 'assignSubjectForm'])->name('students.assign-subject');
+        Route::post('/students/{student}/assign-subject', [AdminStudentController::class, 'assignSubject'])->name('students.store-subject');
+        Route::delete('/students/{student}/subjects/{subject}', [AdminStudentController::class, 'removeSubject'])->name('students.remove-subject');
 
         Route::get('/courses', [AdminCourseController::class, 'index'])->name('courses.index');
         Route::get('/courses/create', [AdminCourseController::class, 'create'])->name('courses.create');
@@ -80,6 +86,9 @@ Route::prefix('admin')->name('admin.')->middleware('default.guard:admin')->group
         Route::get('/applications/{application}', [AdminApplicationController::class, 'show'])->name('applications.show');
         Route::post('/applications/{application}/approve', [AdminApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{application}/reject', [AdminApplicationController::class, 'reject'])->name('applications.reject');
+
+        Route::get('/settings', [AdminSettingsController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings', [AdminSettingsController::class, 'update'])->name('settings.update');
 
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     });

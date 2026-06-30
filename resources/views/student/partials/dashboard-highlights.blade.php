@@ -23,7 +23,7 @@
                             {{ $course->lessons_count }} lessons · {{ $course->quizzes_count }} quizzes
                         </span>
                     </div>
-                    <a href="{{ route('student.courses.show', $course) }}" class="btn btn-sm btn-light student-dash-highlight-item__btn ms-auto">
+                    <a href="{{ student_course_route('student.courses.show', $course) }}" class="btn btn-sm btn-light student-dash-highlight-item__btn ms-auto">
                         Open
                     </a>
                 </li>
@@ -36,7 +36,7 @@
                         <span class="student-dash-highlight-item__meta">{{ optional($quiz->course)->title }}</span>
                     </div>
                     @if($quiz->course)
-                        <a href="{{ route('student.courses.quizzes.show', [$quiz->course, $quiz]) }}" class="btn btn-sm btn-light student-dash-highlight-item__btn ms-auto">
+                        <a href="{{ student_course_route('student.courses.quizzes.show', $quiz->course, ['quiz' => $quiz]) }}" class="btn btn-sm btn-light student-dash-highlight-item__btn ms-auto">
                             Start
                         </a>
                     @endif

@@ -157,9 +157,9 @@ class StudentDashboardController extends Controller
         ));
     }
 
-    public function enroll(Request $request, $course): RedirectResponse
+    public function enroll(Request $request, $studentContext, $courseId): RedirectResponse
     {
-        $course = $this->resolveCourse($course);
+        $course = $this->resolveCourse($courseId);
         if (! $course->is_published) {
             return StudentRoute::redirect('student.dashboard')->with('error', 'This course is not available.');
         }

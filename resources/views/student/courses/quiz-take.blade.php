@@ -4,9 +4,9 @@
 
 @section('content')
 <nav class="student-course-breadcrumb mb-3" aria-label="Breadcrumb">
-    <a href="{{ route('student.courses.show', $course) }}">{{ $course->title }}</a>
+    <a href="{{ student_course_route('student.courses.show', $course) }}">{{ $course->title }}</a>
     <span aria-hidden="true">/</span>
-    <a href="{{ route('student.courses.quizzes.show', [$course, $quiz]) }}">{{ $quiz->title }}</a>
+    <a href="{{ student_course_route('student.courses.quizzes.show', $course, ['quiz' => $quiz]) }}">{{ $quiz->title }}</a>
     <span aria-hidden="true">/</span>
     <span>Attempt</span>
 </nav>
@@ -53,9 +53,9 @@
     </div>
     <div class="student-dash-panel__body">
         @if($quiz->questions->isEmpty())
-            <div class="alert alert-warning mb-0">No questions available. <a href="{{ route('student.courses.quizzes.show', [$course, $quiz]) }}">Go back</a>.</div>
+            <div class="alert alert-warning mb-0">No questions available. <a href="{{ student_course_route('student.courses.quizzes.show', $course, ['quiz' => $quiz]) }}">Go back</a>.</div>
         @else
-            <form action="{{ route('student.courses.quizzes.submit', [$course, $quiz, $attempt]) }}" method="POST" id="quiz-form" novalidate>
+            <form action="{{ student_course_route('student.courses.quizzes.submit', $course, ['quiz' => $quiz, 'attempt' => $attempt]) }}" method="POST" id="quiz-form" novalidate>
                 @csrf
                 <input type="hidden" name="auto_submit" value="1" id="auto-submit-flag" disabled>
                 @foreach($quiz->questions as $index => $question)
@@ -85,7 +85,7 @@
                     <button type="submit" class="btn btn-lms-primary btn-lg" id="quiz-submit-btn">
                         <i class="bi bi-send" aria-hidden="true"></i> Submit quiz
                     </button>
-                    <a href="{{ route('student.courses.quizzes.show', [$course, $quiz]) }}" class="btn btn-outline-secondary">Save &amp; exit</a>
+                    <a href="{{ student_course_route('student.courses.quizzes.show', $course, ['quiz' => $quiz]) }}" class="btn btn-outline-secondary">Save &amp; exit</a>
                     <span class="small text-muted ms-auto">Passing score: {{ $quiz->passing_marks }} marks</span>
                 </div>
             </form>

@@ -344,7 +344,7 @@
                                 <li><i class="bi bi-collection-play" aria-hidden="true"></i> {{ (int) $course->lessons_count }} lessons</li>
                                 <li><i class="bi bi-patch-question" aria-hidden="true"></i> {{ (int) $course->quizzes_count }} quizzes</li>
                             </ul>
-                            <a href="{{ route('student.courses.show', $course) }}" class="btn btn-lms-primary w-100 mt-auto">
+                            <a href="{{ student_course_route('student.courses.show', $course) }}" class="btn btn-lms-primary w-100 mt-auto">
                                 <i class="bi bi-journal-bookmark" aria-hidden="true"></i> Open course
                             </a>
                         </div>

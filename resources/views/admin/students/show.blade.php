@@ -278,6 +278,62 @@
         </form>
 
         {{-- Enrolled Courses --}}
+        <div class="ad-panel mb-4">
+            <div class="ad-panel__head sp-panel-head justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="sp-panel-icon sp-panel-icon--purple"><i class="bi bi-mortarboard"></i></div>
+                    <h3 class="ad-panel__title mb-0">Assigned Subjects</h3>
+                </div>
+                <a href="{{ route('admin.students.assign-subject', $student) }}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>Manage
+                </a>
+            </div>
+            <div class="ad-panel__body ad-panel__body--flush">
+                @if(($assignedSubjects ?? collect())->isEmpty())
+                    <div class="ad-empty">
+                        <i class="bi bi-journal-x d-block mb-2"></i>
+                        No subjects assigned yet.
+                        <a href="{{ route('admin.students.assign-subject', $student) }}" class="sp-notice__link d-block mt-2">Assign subjects</a>
+                    </div>
+                @else
+                    <div class="table-responsive">
+                        <table class="table admin-lms-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Course</th>
+                                    <th>Teacher</th>
+                                    <th>Assigned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($assignedSubjects as $subject)
+                                    <tr>
+                                        <td class="fw-500">
+                                            {{ $subject->name }}
+                                            @if($subject->code)
+                                                <span class="text-muted small">({{ $subject->code }})</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-muted">{{ $subject->course->title ?? '—' }}</td>
+                                        <td class="text-muted">{{ optional($subject->teacher)->name ?? '—' }}</td>
+                                        <td class="text-muted">
+                                            @if($subject->pivot && $subject->pivot->assigned_at)
+                                                {{ \Illuminate\Support\Carbon::parse($subject->pivot->assigned_at)->format('M d, Y') }}
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- Enrolled Courses --}}
         <div class="ad-panel">
             <div class="ad-panel__head sp-panel-head">
                 <div class="sp-panel-icon sp-panel-icon--teal"><i class="bi bi-book-half"></i></div>
@@ -355,6 +411,9 @@
                     <a href="{{ route('admin.students.edit', $student) }}" class="btn btn-primary sp-action-btn">
                         <i class="bi bi-pencil me-2"></i>Edit Student
                     </a>
+                    <a href="{{ route('admin.students.assign-subject', $student) }}" class="btn btn-info sp-action-btn">
+                        <i class="bi bi-book-half me-2"></i>Assign Subjects
+                    </a>
                     <a href="{{ route('admin.students.index') }}" class="btn admin-lms-btn-outline sp-action-btn">
                         <i class="bi bi-arrow-left me-2"></i>Back to List
                     </a>
@@ -376,6 +435,7 @@
                         ['label' => 'Date of birth',      'done' => $profile && $profile->date_of_birth],
                         ['label' => 'Home address',       'done' => $profile && $profile->home_address],
                         ['label' => 'Guardian contact',   'done' => $profile && $profile->guardian_contact_number],
+                        ['label' => 'Subject assigned',   'done' => ($assignedSubjects ?? collect())->count() > 0],
                         ['label' => 'Enrolled in course', 'done' => $student->enrolledCourses->count() > 0],
                     ];
                     $done = collect($checks)->where('done', true)->count();

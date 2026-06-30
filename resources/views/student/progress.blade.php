@@ -39,7 +39,7 @@
                             <li><i class="bi bi-patch-question" aria-hidden="true"></i> {{ $row['attempted_quizzes'] }}/{{ $row['total_quizzes'] }} quizzes</li>
                             <li><i class="bi bi-calendar3" aria-hidden="true"></i> Enrolled {{ $row['enrollment']->created_at->format('M j, Y') }}</li>
                         </ul>
-                        <a href="{{ route('student.courses.show', $course) }}" class="btn btn-sm btn-lms-primary w-100">
+                        <a href="{{ student_course_route('student.courses.show', $course) }}" class="btn btn-sm btn-lms-primary w-100">
                             Continue learning
                         </a>
                     </article>
@@ -89,7 +89,7 @@
                                         </div>
                                     </td>
                                     <td class="text-end">
-                                        <a href="{{ route('student.courses.show', $course) }}" class="btn btn-sm btn-outline-primary">Open</a>
+                                        <a href="{{ student_course_route('student.courses.show', $course) }}" class="btn btn-sm btn-outline-primary">Open</a>
                                     </td>
                                 </tr>
                             @endforeach

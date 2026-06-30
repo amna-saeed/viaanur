@@ -48,6 +48,7 @@
                         <th>Student ID</th>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>Subjects</th>
                         <th>Guardian</th>
                         <th>Joined</th>
                         <th class="text-end">Actions</th>
@@ -75,6 +76,13 @@
                         </td>
                         <td class="text-muted">{{ $student->email }}</td>
                         <td>
+                            @if($student->assignedSubjects->count() > 0)
+                                <span class="badge bg-info">{{ $student->assignedSubjects->count() }}</span>
+                            @else
+                                <span class="text-muted">0</span>
+                            @endif
+                        </td>
+                        <td>
                             @if($student->studentProfile && $student->studentProfile->guardian_name)
                                 {{ $student->studentProfile->guardian_name }}
                             @else
@@ -88,6 +96,10 @@
                                     class="btn btn-sm admin-lms-btn-outline stu-row-btn">
                                     <i class="bi bi-eye me-1"></i>View
                                 </a>
+                                <a href="{{ route('admin.students.assign-subject', $student) }}"
+                                    class="btn btn-sm btn-info stu-row-btn">
+                                    <i class="bi bi-book-half me-1"></i>Subjects
+                                </a>
                                 <a href="{{ route('admin.students.edit', $student) }}"
                                     class="btn btn-sm stu-edit-btn">
                                     <i class="bi bi-pencil me-1"></i>Edit
@@ -97,7 +109,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6">
+                        <td colspan="7">
                             <div class="ad-empty">
                                 <i class="bi bi-people d-block mb-2"></i>
                                 @if(request('q'))

@@ -9,7 +9,9 @@ use App\Models\Lesson;
 use App\Models\LmsEnrollment;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\User;
 use App\Services\LectureAttendanceService;
+use App\Support\StudentRoute;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,9 +20,9 @@ class StudentCourseController extends Controller
 {
     use ResolvesRouteModels;
 
-    public function show($course): View
+    public function show($studentContext, $courseId): View
     {
-        $course = $this->resolveCourse($course);
+        $course = $this->resolveCourse($courseId);
         $user = auth()->user();
         $this->ensureEnrolled($user->id, $course);
 
@@ -48,9 +50,9 @@ class StudentCourseController extends Controller
         return view('student.courses.show', compact('course', 'attemptsByQuiz', 'submittedCounts'));
     }
 
-    public function showLesson($course, $lesson, LectureAttendanceService $lectureAttendance): View
+    public function showLesson($studentContext, $courseId, $lesson, LectureAttendanceService $lectureAttendance): View
     {
-        $course = $this->resolveCourse($course);
+        $course = $this->resolveCourse($courseId);
         $lesson = $this->resolveLesson($lesson);
         $this->ensureEnrolled(auth()->id(), $course);
         $this->ensureLessonBelongsToCourse($lesson, $course);
@@ -62,9 +64,9 @@ class StudentCourseController extends Controller
         return view('student.courses.lesson', compact('course', 'lesson'));
     }
 
-    public function showQuiz($course, $quiz)
+    public function showQuiz($studentContext, $courseId, $quiz)
     {
-        $course = $this->resolveCourse($course);
+        $course = $this->resolveCourse($courseId);
         $quiz = $this->resolveQuiz($quiz);
         $user = auth()->user();
         $this->ensureEnrolled($user->id, $course);
@@ -82,7 +84,10 @@ class StudentCourseController extends Controller
         $inProgress = $attempts->first(fn ($a) => $a->submitted_at === null);
 
         if ($inProgress) {
-            return redirect()->route('student.courses.quizzes.take', [$course, $quiz, $inProgress]);
+            return StudentRoute::courseRedirect('student.courses.quizzes.take', $course, [
+                'quiz' => $quiz,
+                'attempt' => $inProgress,
+            ]);
         }
 
         $canAttempt = $quiz->questions_count > 0 && $submittedCount < $quiz->attempt_limit;
@@ -90,9 +95,9 @@ class StudentCourseController extends Controller
         return view('student.courses.quiz', compact('course', 'quiz', 'attempts', 'submittedCount', 'canAttempt'));
     }
 
-    public function startQuiz(Request $request, $course, $quiz): RedirectResponse
+    public function startQuiz(Request $request, $studentContext, $courseId, $quiz): RedirectResponse
     {
-        $course = $this->resolveCourse($course);
+        $course = $this->resolveCourse($courseId);
         $quiz = $this->resolveQuiz($quiz);
         $user = $request->user();
         $this->ensureEnrolled($user->id, $course);
@@ -101,8 +106,7 @@ class StudentCourseController extends Controller
         $quiz->loadCount('questions');
 
         if ($quiz->questions_count === 0) {
-            return redirect()
-                ->route('student.courses.quizzes.show', [$course, $quiz])
+            return StudentRoute::courseRedirect('student.courses.quizzes.show', $course, ['quiz' => $quiz])
                 ->with('error', 'This quiz has no questions yet.');
         }
 
@@ -112,7 +116,10 @@ class StudentCourseController extends Controller
             ->first();
 
         if ($existingInProgress) {
-            return redirect()->route('student.courses.quizzes.take', [$course, $quiz, $existingInProgress]);
+            return StudentRoute::courseRedirect('student.courses.quizzes.take', $course, [
+                'quiz' => $quiz,
+                'attempt' => $existingInProgress,
+            ]);
         }
 
         $submittedCount = $quiz->attempts()
@@ -121,8 +128,7 @@ class StudentCourseController extends Controller
             ->count();
 
         if ($submittedCount >= $quiz->attempt_limit) {
-            return redirect()
-                ->route('student.courses.quizzes.show', [$course, $quiz])
+            return StudentRoute::courseRedirect('student.courses.quizzes.show', $course, ['quiz' => $quiz])
                 ->with('error', 'You have used all allowed attempts for this quiz.');
         }
 
@@ -131,12 +137,15 @@ class StudentCourseController extends Controller
             'started_at' => now(),
         ]);
 
-        return redirect()->route('student.courses.quizzes.take', [$course, $quiz, $attempt]);
+        return StudentRoute::courseRedirect('student.courses.quizzes.take', $course, [
+            'quiz' => $quiz,
+            'attempt' => $attempt,
+        ]);
     }
 
-    public function takeQuiz($course, $quiz, $attempt)
+    public function takeQuiz($studentContext, $courseId, $quiz, $attempt)
     {
-        $course = $this->resolveCourse($course);
+        $course = $this->resolveCourse($courseId);
         $quiz = $this->resolveQuiz($quiz);
         $attempt = $this->resolveAttempt($attempt);
         $user = auth()->user();
@@ -145,7 +154,10 @@ class StudentCourseController extends Controller
         $this->ensureAttemptBelongsToQuiz($attempt, $quiz, $user->id);
 
         if ($attempt->submitted_at) {
-            return redirect()->route('student.courses.quizzes.result', [$course, $quiz, $attempt]);
+            return StudentRoute::courseRedirect('student.courses.quizzes.result', $course, [
+                'quiz' => $quiz,
+                'attempt' => $attempt,
+            ]);
         }
 
         if ($quiz->duration_minutes && $attempt->started_at) {
@@ -160,9 +172,9 @@ class StudentCourseController extends Controller
         return view('student.courses.quiz-take', compact('course', 'quiz', 'attempt'));
     }
 
-    public function submitQuiz(Request $request, $course, $quiz, $attempt): RedirectResponse
+    public function submitQuiz(Request $request, $studentContext, $courseId, $quiz, $attempt): RedirectResponse
     {
-        $course = $this->resolveCourse($course);
+        $course = $this->resolveCourse($courseId);
         $quiz = $this->resolveQuiz($quiz);
         $attempt = $this->resolveAttempt($attempt);
         $user = $request->user();
@@ -171,14 +183,16 @@ class StudentCourseController extends Controller
         $this->ensureAttemptBelongsToQuiz($attempt, $quiz, $user->id);
 
         if ($attempt->submitted_at) {
-            return redirect()->route('student.courses.quizzes.result', [$course, $quiz, $attempt]);
+            return StudentRoute::courseRedirect('student.courses.quizzes.result', $course, [
+                'quiz' => $quiz,
+                'attempt' => $attempt,
+            ]);
         }
 
         $quiz->load('questions');
 
         if ($quiz->questions->isEmpty()) {
-            return redirect()
-                ->route('student.courses.quizzes.show', [$course, $quiz])
+            return StudentRoute::courseRedirect('student.courses.quizzes.show', $course, ['quiz' => $quiz])
                 ->with('error', 'This quiz has no questions.');
         }
 
@@ -211,16 +225,17 @@ class StudentCourseController extends Controller
             'submitted_at' => now(),
         ]);
 
-        return redirect()
-            ->route('student.courses.quizzes.result', [$course, $quiz, $attempt])
-            ->with($isAutoSubmit ? 'error' : 'success', $isAutoSubmit
-                ? 'Time is up. Your quiz was submitted automatically.'
-                : 'Quiz submitted successfully.');
+        return StudentRoute::courseRedirect('student.courses.quizzes.result', $course, [
+            'quiz' => $quiz,
+            'attempt' => $attempt,
+        ])->with($isAutoSubmit ? 'error' : 'success', $isAutoSubmit
+            ? 'Time is up. Your quiz was submitted automatically.'
+            : 'Quiz submitted successfully.');
     }
 
-    public function quizResult($course, $quiz, $attempt)
+    public function quizResult($studentContext, $courseId, $quiz, $attempt)
     {
-        $course = $this->resolveCourse($course);
+        $course = $this->resolveCourse($courseId);
         $quiz = $this->resolveQuiz($quiz);
         $attempt = $this->resolveAttempt($attempt);
         $user = auth()->user();
@@ -229,7 +244,10 @@ class StudentCourseController extends Controller
         $this->ensureAttemptBelongsToQuiz($attempt, $quiz, $user->id);
 
         if (! $attempt->submitted_at) {
-            return redirect()->route('student.courses.quizzes.take', [$course, $quiz, $attempt]);
+            return StudentRoute::courseRedirect('student.courses.quizzes.take', $course, [
+                'quiz' => $quiz,
+                'attempt' => $attempt,
+            ]);
         }
 
         $quiz->load('questions');
@@ -245,9 +263,30 @@ class StudentCourseController extends Controller
             ->where('status', LmsEnrollment::STATUS_APPROVED)
             ->exists();
 
-        if (! $enrolled) {
-            abort(403, 'You must be enrolled and approved for this course.');
+        if ($enrolled) {
+            return;
         }
+
+        $student = User::query()->find($userId);
+        $hasAssignedSubject = $student
+            && $student->assignedSubjects()->where('subjects.course_id', $course->id)->exists();
+
+        if ($hasAssignedSubject) {
+            LmsEnrollment::updateOrCreate(
+                [
+                    'user_id' => $userId,
+                    'course_id' => $course->id,
+                ],
+                [
+                    'status' => LmsEnrollment::STATUS_APPROVED,
+                    'approved_at' => now(),
+                ]
+            );
+
+            return;
+        }
+
+        abort(403, 'You must be enrolled and approved for this course.');
     }
 
     private function ensureLessonBelongsToCourse(Lesson $lesson, Course $course): void
@@ -294,8 +333,9 @@ class StudentCourseController extends Controller
             'submitted_at' => now(),
         ]);
 
-        return redirect()
-            ->route('student.courses.quizzes.result', [$course, $quiz, $attempt])
-            ->with('error', 'Time is up. Your quiz was submitted automatically.');
+        return StudentRoute::courseRedirect('student.courses.quizzes.result', $course, [
+            'quiz' => $quiz,
+            'attempt' => $attempt,
+        ])->with('error', 'Time is up. Your quiz was submitted automatically.');
     }
 }

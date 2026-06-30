@@ -103,7 +103,7 @@
                                     <div class="student-dash-progress__bar {{ $progress >= 75 ? 'student-dash-progress__bar--high' : ($progress >= 40 ? 'student-dash-progress__bar--mid' : '') }}" style="width: {{ $progress > 0 ? $progress : 5 }}%"></div>
                                 </div>
                             </div>
-                            <a href="{{ route('student.courses.show', $course) }}" class="btn btn-sm btn-lms-primary mt-3 w-100">
+                            <a href="{{ student_course_route('student.courses.show', $course) }}" class="btn btn-sm btn-lms-primary mt-3 w-100">
                                 <i class="bi bi-journal-bookmark" aria-hidden="true"></i> Open course
                             </a>
                         </div>
@@ -160,7 +160,7 @@
                                         </div>
                                     </td>
                                     <td class="text-end">
-                                        <a href="{{ route('student.courses.show', $course) }}" class="btn btn-sm btn-outline-primary">Open</a>
+                                        <a href="{{ student_course_route('student.courses.show', $course) }}" class="btn btn-sm btn-outline-primary">Open</a>
                                     </td>
                                 </tr>
                             @endforeach

@@ -42,15 +42,31 @@ Route::prefix('student')->name('student.')->middleware('default.guard:student')-
             Route::post('/leave-requests', [StudentDashboardController::class, 'storeLeaveRequest'])->name('leave-requests.store');
             Route::get('/progress', [StudentDashboardController::class, 'progress'])->name('progress');
             Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('profile');
-            Route::post('/courses/{course}/enroll', [StudentDashboardController::class, 'enroll'])->name('courses.enroll');
+            Route::post('/courses/{courseId}/enroll', [StudentDashboardController::class, 'enroll'])
+                ->whereNumber('courseId')
+                ->name('courses.enroll');
 
-            Route::get('/courses/{course}', [StudentCourseController::class, 'show'])->name('courses.show');
-            Route::get('/courses/{course}/lessons/{lesson}', [StudentCourseController::class, 'showLesson'])->name('courses.lessons.show');
-            Route::get('/courses/{course}/quizzes/{quiz}', [StudentCourseController::class, 'showQuiz'])->name('courses.quizzes.show');
-            Route::post('/courses/{course}/quizzes/{quiz}/start', [StudentCourseController::class, 'startQuiz'])->name('courses.quizzes.start');
-            Route::get('/courses/{course}/quizzes/{quiz}/attempts/{attempt}', [StudentCourseController::class, 'takeQuiz'])->name('courses.quizzes.take');
-            Route::post('/courses/{course}/quizzes/{quiz}/attempts/{attempt}', [StudentCourseController::class, 'submitQuiz'])->name('courses.quizzes.submit');
-            Route::get('/courses/{course}/quizzes/{quiz}/attempts/{attempt}/result', [StudentCourseController::class, 'quizResult'])->name('courses.quizzes.result');
+            Route::get('/courses/{courseId}', [StudentCourseController::class, 'show'])
+                ->whereNumber('courseId')
+                ->name('courses.show');
+            Route::get('/courses/{courseId}/lessons/{lesson}', [StudentCourseController::class, 'showLesson'])
+                ->whereNumber('courseId')
+                ->name('courses.lessons.show');
+            Route::get('/courses/{courseId}/quizzes/{quiz}', [StudentCourseController::class, 'showQuiz'])
+                ->whereNumber('courseId')
+                ->name('courses.quizzes.show');
+            Route::post('/courses/{courseId}/quizzes/{quiz}/start', [StudentCourseController::class, 'startQuiz'])
+                ->whereNumber('courseId')
+                ->name('courses.quizzes.start');
+            Route::get('/courses/{courseId}/quizzes/{quiz}/attempts/{attempt}', [StudentCourseController::class, 'takeQuiz'])
+                ->whereNumber('courseId')
+                ->name('courses.quizzes.take');
+            Route::post('/courses/{courseId}/quizzes/{quiz}/attempts/{attempt}', [StudentCourseController::class, 'submitQuiz'])
+                ->whereNumber('courseId')
+                ->name('courses.quizzes.submit');
+            Route::get('/courses/{courseId}/quizzes/{quiz}/attempts/{attempt}/result', [StudentCourseController::class, 'quizResult'])
+                ->whereNumber('courseId')
+                ->name('courses.quizzes.result');
 
             Route::post('/logout', [StudentAuthController::class, 'logout'])->name('logout');
         });

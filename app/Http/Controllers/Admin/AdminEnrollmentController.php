@@ -160,9 +160,14 @@ class AdminEnrollmentController extends Controller
 
     public function alerts(EnrollmentRequestService $enrollmentService)
     {
+        $pendingCount = $enrollmentService->pendingCount();
+        $items = $enrollmentService->pendingItemsPayload();
+
         return response()->json([
             'alerts' => $enrollmentService->alertsPayload(),
-            'pending_count' => $enrollmentService->pendingCount(),
+            'items' => $items,
+            'pending_count' => $pendingCount,
+            'has_more' => $pendingCount > count($items),
             'generated_at' => now()->toIso8601String(),
         ]);
     }

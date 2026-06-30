@@ -111,11 +111,35 @@
         .admin-lms-user-card {
             background: rgba(255,255,255,.07);
             border-radius: var(--ad-radius-sm);
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .65rem;
+            color: inherit;
+            transition: background .2s ease;
+        }
+        a.admin-lms-user-card:hover {
+            background: rgba(255,255,255,.12);
+            color: inherit;
+        }
+        .admin-lms-user-card--active {
+            background: rgba(178,205,52,.15);
+            box-shadow: inset 0 0 0 1px rgba(178,205,52,.25);
+        }
+        .admin-lms-user-card__chevron {
+            margin-left: auto;
+            color: rgba(255,255,255,.45);
+            font-size: .85rem;
         }
 
         /* avatar */
         .admin-lms-avatar {
             background: linear-gradient(135deg, #322f89, #b2cd34);
+        }
+        .admin-lms-avatar--lg {
+            width: 4rem;
+            height: 4rem;
+            font-size: 1.35rem;
         }
 
         /* ── Topbar ── */
@@ -184,6 +208,116 @@
             justify-content: center;
             line-height: 1;
             border: 2px solid #fff;
+        }
+        .admin-enrollment-notify__dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: min(360px, calc(100vw - 2rem));
+            background: #fff;
+            border: 1px solid var(--ad-border);
+            border-radius: 14px;
+            box-shadow: 0 12px 40px rgba(15, 23, 42, .14);
+            z-index: 1090;
+            overflow: hidden;
+        }
+        .admin-enrollment-notify__dropdown[hidden] {
+            display: none !important;
+        }
+        .admin-enrollment-notify__dropdown-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+            padding: .85rem 1rem;
+            border-bottom: 1px solid var(--ad-border);
+            background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+        }
+        .admin-enrollment-notify__dropdown-title {
+            margin: 0;
+            font-size: .9rem;
+            font-weight: 700;
+            color: var(--ad-text);
+        }
+        .admin-enrollment-notify__dropdown-count {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #e11d48;
+            background: #fff1f2;
+            border: 1px solid #fecaca;
+            padding: .2rem .55rem;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .admin-enrollment-notify__list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .admin-enrollment-notify__item a {
+            display: block;
+            padding: .8rem 1rem;
+            text-decoration: none;
+            color: inherit;
+            border-bottom: 1px solid var(--ad-border);
+            transition: background .15s ease;
+        }
+        .admin-enrollment-notify__item:last-child a {
+            border-bottom: none;
+        }
+        .admin-enrollment-notify__item a:hover {
+            background: var(--ad-primary-soft);
+        }
+        .admin-enrollment-notify__item-type {
+            display: inline-block;
+            font-size: .65rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--ad-primary);
+            margin-bottom: .25rem;
+        }
+        .admin-enrollment-notify__item-type--application {
+            color: #b45309;
+        }
+        .admin-enrollment-notify__item-message {
+            display: block;
+            font-size: .8125rem;
+            line-height: 1.45;
+            color: var(--ad-text);
+            margin-bottom: .2rem;
+        }
+        .admin-enrollment-notify__item-time {
+            display: block;
+            font-size: .72rem;
+            color: var(--ad-muted);
+        }
+        .admin-enrollment-notify__empty {
+            padding: 1.5rem 1rem;
+            text-align: center;
+            font-size: .875rem;
+            color: var(--ad-muted);
+        }
+        .admin-enrollment-notify__dropdown-foot {
+            padding: .7rem 1rem;
+            border-top: 1px solid var(--ad-border);
+            background: #f8fafc;
+            text-align: center;
+        }
+        .admin-enrollment-notify__dropdown-foot a {
+            font-size: .8125rem;
+            font-weight: 600;
+            color: var(--ad-primary);
+            text-decoration: none;
+        }
+        .admin-enrollment-notify__dropdown-foot a:hover {
+            text-decoration: underline;
+        }
+        .admin-enrollment-notify__btn.is-open {
+            background: var(--ad-primary-soft);
+            box-shadow: var(--ad-shadow-hover);
         }
         .admin-enrollment-toasts {
             position: fixed;
@@ -385,13 +519,14 @@
         </nav>
 
         <div class="admin-lms-sidebar-foot">
-            <div class="admin-lms-user-card">
+            <a href="{{ route('admin.settings.edit') }}" class="admin-lms-user-card text-decoration-none {{ request()->routeIs('admin.settings*') ? 'admin-lms-user-card--active' : '' }}">
                 <span class="admin-lms-avatar" aria-hidden="true">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
                 <div class="admin-lms-user-card__meta">
                     <span class="admin-lms-user-card__name">{{ auth()->user()->name }}</span>
-                    <span class="admin-lms-user-card__role">Administrator</span>
+                    <span class="admin-lms-user-card__role">Account settings</span>
                 </div>
-            </div>
+                <i class="bi bi-chevron-right admin-lms-user-card__chevron" aria-hidden="true"></i>
+            </a>
         </div>
     </aside>
 
@@ -404,15 +539,27 @@
             </div>
             <div class="admin-lms-topbar__actions">
                 <div class="admin-enrollment-notify" id="admin-enrollment-notify">
-                    <button type="button" class="admin-enrollment-notify__btn" id="admin-enrollment-notify-btn" aria-label="Enrollment notifications" title="Enrollment notifications">
+                    <button type="button" class="admin-enrollment-notify__btn" id="admin-enrollment-notify-btn" aria-label="Notifications" aria-expanded="false" aria-controls="admin-enrollment-dropdown" title="Notifications">
                         <i class="bi bi-bell-fill" aria-hidden="true"></i>
                         @if(!empty($pendingEnrollmentCount))
                             <span class="admin-enrollment-notify__badge" id="admin-enrollment-notify-badge">{{ $pendingEnrollmentCount }}</span>
                         @endif
                     </button>
+                    <div class="admin-enrollment-notify__dropdown" id="admin-enrollment-dropdown" hidden>
+                        <div class="admin-enrollment-notify__dropdown-head">
+                            <h2 class="admin-enrollment-notify__dropdown-title mb-0">Notifications</h2>
+                            <span class="admin-enrollment-notify__dropdown-count" id="admin-enrollment-dropdown-count">0 pending</span>
+                        </div>
+                        <ul class="admin-enrollment-notify__list" id="admin-enrollment-dropdown-list"></ul>
+                        <div class="admin-enrollment-notify__dropdown-foot">
+                            <a href="{{ route('admin.enrollments.index') }}">View all enrollments</a>
+                        </div>
+                    </div>
                 </div>
                 <span class="admin-lms-topbar-meta d-none d-md-inline">
-                    <i class="bi bi-person-badge me-1" aria-hidden="true"></i>{{ auth()->user()->name }}
+                    <a href="{{ route('admin.settings.edit') }}" class="text-decoration-none" style="color:inherit;">
+                        <i class="bi bi-person-badge me-1" aria-hidden="true"></i>{{ auth()->user()->name }}
+                    </a>
                 </span>
                 <form action="{{ route('admin.logout') }}" method="POST" class="d-inline">
                     @csrf
@@ -452,13 +599,33 @@
         const container = document.getElementById('admin-enrollment-toasts');
         const badge = document.getElementById('admin-enrollment-notify-badge');
         const notifyBtn = document.getElementById('admin-enrollment-notify-btn');
+        const dropdown = document.getElementById('admin-enrollment-dropdown');
+        const dropdownList = document.getElementById('admin-enrollment-dropdown-list');
+        const dropdownCount = document.getElementById('admin-enrollment-dropdown-count');
         if (!alertsUrl || !container) return;
 
         const renderedIds = new Set();
+        let latestData = { pending_count: 0, items: [], has_more: false };
+
         const escapeHtml = (value) => String(value)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/"/g, '&quot;');
+
+        const formatTime = (iso) => {
+            if (!iso) return '';
+            const date = new Date(iso);
+            if (Number.isNaN(date.getTime())) return '';
+            const diffMs = Date.now() - date.getTime();
+            const mins = Math.floor(diffMs / 60000);
+            if (mins < 1) return 'Just now';
+            if (mins < 60) return mins + ' min ago';
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return hours + ' hr ago';
+            const days = Math.floor(hours / 24);
+            if (days < 7) return days + ' day' + (days > 1 ? 's' : '') + ' ago';
+            return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        };
 
         const updateBadge = (count) => {
             if (!notifyBtn) return;
@@ -473,6 +640,48 @@
                 el.textContent = count;
             } else if (el) {
                 el.remove();
+            }
+        };
+
+        const renderDropdown = () => {
+            if (!dropdownList || !dropdownCount) return;
+
+            const count = latestData.pending_count || 0;
+            dropdownCount.textContent = count + ' pending';
+
+            if (!latestData.items || latestData.items.length === 0) {
+                dropdownList.innerHTML = '<li class="admin-enrollment-notify__empty">No pending enrollment requests right now.</li>';
+                return;
+            }
+
+            let html = latestData.items.map((item) => {
+                const typeClass = item.type === 'application'
+                    ? 'admin-enrollment-notify__item-type admin-enrollment-notify__item-type--application'
+                    : 'admin-enrollment-notify__item-type';
+                const typeLabel = item.type === 'application' ? 'New application' : 'Enrollment request';
+                return '<li class="admin-enrollment-notify__item">' +
+                    '<a href="' + escapeHtml(item.url) + '">' +
+                        '<span class="' + typeClass + '">' + typeLabel + '</span>' +
+                        '<span class="admin-enrollment-notify__item-message">' + escapeHtml(item.message) + '</span>' +
+                        '<span class="admin-enrollment-notify__item-time">' + escapeHtml(formatTime(item.created_at)) + '</span>' +
+                    '</a>' +
+                '</li>';
+            }).join('');
+
+            if (latestData.has_more) {
+                html += '<li class="admin-enrollment-notify__empty" style="padding:.75rem 1rem;border-top:1px solid var(--ad-border);">Showing latest ' + latestData.items.length + ' of ' + count + ' pending items.</li>';
+            }
+
+            dropdownList.innerHTML = html;
+        };
+
+        const setDropdownOpen = (open) => {
+            if (!dropdown || !notifyBtn) return;
+            dropdown.hidden = !open;
+            notifyBtn.classList.toggle('is-open', open);
+            notifyBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) {
+                renderDropdown();
             }
         };
 
@@ -491,8 +700,8 @@
             el.className = 'admin-enrollment-toast';
             el.setAttribute('data-enrollment-alert-id', alert.id);
             el.innerHTML =
-                '<p class="admin-enrollment-toast__label">Announcement</p>' +
-                '<h3 class="admin-enrollment-toast__title">NEW STUDENT ENROLL</h3>' +
+                '<p class="admin-enrollment-toast__label">New notification</p>' +
+                '<h3 class="admin-enrollment-toast__title">Enrollment request</h3>' +
                 '<p class="admin-enrollment-toast__text"><strong>' + escapeHtml(alert.student_name) + '</strong> requested enrollment in <strong>' + escapeHtml(alert.course_title) + '</strong>.</p>' +
                 '<div class="admin-enrollment-toast__actions">' +
                     '<a href="' + escapeHtml(alert.url) + '" class="btn btn-primary btn-sm">Review</a>' +
@@ -501,6 +710,29 @@
                 '</div>';
             container.appendChild(el);
         };
+
+        if (notifyBtn && dropdown) {
+            notifyBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const opening = dropdown.hidden;
+                if (opening) {
+                    await poll();
+                }
+                setDropdownOpen(opening);
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!dropdown.hidden && !dropdown.contains(e.target) && !notifyBtn.contains(e.target)) {
+                    setDropdownOpen(false);
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !dropdown.hidden) {
+                    setDropdownOpen(false);
+                }
+            });
+        }
 
         container.addEventListener('click', (e) => {
             const dismissId = e.target.closest('[data-dismiss-enrollment-alert]')?.getAttribute('data-dismiss-enrollment-alert');
@@ -515,7 +747,15 @@
                 const res = await fetch(alertsUrl, { credentials: 'same-origin', headers: { Accept: 'application/json' } });
                 if (!res.ok) return;
                 const data = await res.json();
-                updateBadge(data.pending_count || 0);
+                latestData = {
+                    pending_count: data.pending_count || 0,
+                    items: data.items || [],
+                    has_more: !!data.has_more,
+                };
+                updateBadge(latestData.pending_count);
+                if (dropdown && !dropdown.hidden) {
+                    renderDropdown();
+                }
                 (data.alerts || []).forEach(renderAlert);
             } catch (e) {
                 console.error(e);

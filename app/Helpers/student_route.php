@@ -15,3 +15,14 @@ if (! function_exists('student_redirect')) {
         return StudentRoute::redirect($route, $parameters, $status);
     }
 }
+
+if (! function_exists('student_course_route')) {
+    /**
+     * @param  \App\Models\Course|int|string  $course
+     * @param  array<string, mixed>  $parameters
+     */
+    function student_course_route(string $route, $course, array $parameters = []): string
+    {
+        return route($route, StudentRoute::courseParams($course, $parameters));
+    }
+}

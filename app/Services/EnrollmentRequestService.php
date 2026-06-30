@@ -83,6 +83,40 @@ class EnrollmentRequestService
             ->all();
     }
 
+    public function pendingItemsPayload(int $limit = 20): array
+    {
+        $enrollments = LmsEnrollment::query()
+            ->with(['user:id,name,email', 'course:id,title'])
+            ->where('status', LmsEnrollment::STATUS_PENDING)
+            ->latest()
+            ->get();
+
+        $applications = Application::query()
+            ->with('courseRelation:id,title')
+            ->pendingReview()
+            ->latest()
+            ->get();
+
+        return $enrollments
+            ->map(fn (LmsEnrollment $enrollment) => $this->formatPendingItem(
+                $this->enrollmentAlertItem($enrollment),
+                'enrollment'
+            ))
+            ->concat($applications->map(fn (Application $application) => $this->formatPendingItem(
+                $this->applicationAlertItem($application),
+                'application'
+            )))
+            ->sortByDesc('sort_at')
+            ->take($limit)
+            ->map(function (array $item) {
+                unset($item['sort_at']);
+
+                return $item;
+            })
+            ->values()
+            ->all();
+    }
+
     public function syncEnrollmentFromApplication(Application $application): ?LmsEnrollment
     {
         $student = User::query()
@@ -338,5 +372,18 @@ class EnrollmentRequestService
             'sort_at' => $application->created_at,
             'url' => route('admin.applications.show', $application),
         ];
+    }
+
+    private function formatPendingItem(array $item, string $type): array
+    {
+        $message = $type === 'application'
+            ? $item['student_name'].' submitted a new application for '.$item['course_title']
+            : $item['student_name'].' requested enrollment in '.$item['course_title'];
+
+        return array_merge($item, [
+            'id' => $item['alert_id'],
+            'type' => $type,
+            'message' => $message,
+        ]);
     }
 }

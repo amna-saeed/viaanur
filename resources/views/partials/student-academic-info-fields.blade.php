@@ -6,6 +6,7 @@
     <div class="col-12">
         <label for="subjects_enrolled" class="form-label">Subject(s) Enrolled</label>
         <textarea class="form-control @error('subjects_enrolled') is-invalid @enderror" id="subjects_enrolled" name="subjects_enrolled" rows="2" placeholder="e.g. Mathematics, English, Science">{{ old('subjects_enrolled', optional($profile)->subjects_enrolled) }}</textarea>
+        <div class="form-text">This field is updated automatically when you assign subjects from the student profile.</div>
         @error('subjects_enrolled')<span class="invalid-feedback">{{ $message }}</span>@enderror
     </div>
     <div class="col-md-6">
