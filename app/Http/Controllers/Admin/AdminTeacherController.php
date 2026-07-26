@@ -13,8 +13,12 @@ use Illuminate\Validation\Rule;
 
 class AdminTeacherController extends Controller
 {
-    public function __construct(private TeacherAccountService $teacherAccounts)
+    /** @var TeacherAccountService */
+    private $teacherAccounts;
+
+    public function __construct(TeacherAccountService $teacherAccounts)
     {
+        $this->teacherAccounts = $teacherAccounts;
     }
     public function index(Request $request)
     {

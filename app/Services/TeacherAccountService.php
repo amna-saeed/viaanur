@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class TeacherAccountService
 {
@@ -29,7 +30,7 @@ class TeacherAccountService
         }
 
         $user = User::query()->create(array_merge($userData, [
-            'password' => Hash::make($password ?? str()->random(16)),
+            'password' => Hash::make($password ?? Str::random(16)),
         ]));
 
         $teacher->update(['user_id' => $user->id]);
