@@ -15,8 +15,12 @@ use Illuminate\Support\Facades\Schema;
 
 class TeacherAttendanceService
 {
-    public function __construct(private TeacherScopeService $scope)
+    /** @var TeacherScopeService */
+    private $scope;
+
+    public function __construct(TeacherScopeService $scope)
     {
+        $this->scope = $scope;
     }
 
     /**

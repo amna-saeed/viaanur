@@ -60,7 +60,7 @@ class LectureAttendanceService
                 'status_message' => $attended
                     ? 'The student has attended the assigned lecture.'
                     : 'The lecture was assigned but not attended.',
-                'attended_at' => $attendance?->attended_at,
+                'attended_at' => $attendance ? $attendance->attended_at : null,
             ];
         });
     }
